@@ -1,8 +1,8 @@
 .. _measurement_algos:
 
-***************************************************
-cape_eea Measurement Algorithm Description
-***************************************************
+***********************************************************************
+Electron Electrostatic Analyzer (EEA) Measurement Algorithm Description
+***********************************************************************
 
 Theoretical basis
 =================
