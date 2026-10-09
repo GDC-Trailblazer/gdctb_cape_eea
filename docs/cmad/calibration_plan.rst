@@ -1,8 +1,8 @@
 .. _calibration_plan:
 
-**********************************
-cape_eea Calibration Plan
-**********************************
+******************************************************
+Electron Electrostatic Analyzer (EEA) Calibration Plan
+******************************************************
 
 Overall Calibration Scheme
 ==========================

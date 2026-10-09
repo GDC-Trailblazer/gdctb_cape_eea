@@ -18,9 +18,9 @@ To link to methods, classes, or modules in your repo you have to use backticks, 
 
 .. code-block:: rst
 
-    `gdctb_cape_eea.io.read_file`
+    `hermes_eea.io.read_file`
 
-generates a link like this: `gdctb_cape_eea.io.read_file`.
+generates a link like this: `hermes_eea.io.read_file`.
 
 Links can also be generated to external packages via
 `intersphinx <http://www.sphinx-doc.org/en/master/ext/intersphinx.html>`_:

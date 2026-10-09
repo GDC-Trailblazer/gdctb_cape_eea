@@ -12,8 +12,8 @@ Science Objectives
 
 This section describes the science objective(s) of the mission.
 
-<Instrument name> Instrument Description
-========================================
+Electron Electrostatic Analyzer (EEA) Instrument Description
+============================================================
 
 
 Measurement Concept

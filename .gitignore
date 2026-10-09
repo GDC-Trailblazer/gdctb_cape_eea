@@ -147,8 +147,11 @@ docs/_build
 docs/generated
 docs/api
 docs/whatsnew/latest_changelog.txt
-gdctb_cape_eea/_version.py
+hermes_eea/_version.py
 htmlcov/
+
+
+#mac
 
 # General
 .DS_Store
@@ -177,3 +180,5 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+_version.py
