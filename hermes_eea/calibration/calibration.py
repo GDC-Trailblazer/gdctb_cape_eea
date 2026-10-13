@@ -386,6 +386,9 @@ def l0_hk_data_to_cdf(data: dict, original_filename: Path, destination_dir: Path
     # since ccsdspy returns their raw, unmasked bits (see _read_hk_fill_field_names).
     # Everything else is stored as raw, dimensionless counts for now since calibration
     # curves for voltages/temperatures are not yet defined (same approach as the science data).
+    # I did go to the trouble to convert thier raw values to real voltages and currents to
+    # verify that I was parsing everything correctly but was asked to back that code out (I still have that branch)
+    # THIS IS THE DATA WE WANT IN THE DATABASE (barring the units conversion above)
     for field, values in data.items():
         if field in ("SHCOARSE", "SHFINE") or field in hk_fill_fields:
             continue
