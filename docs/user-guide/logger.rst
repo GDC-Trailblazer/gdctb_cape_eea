@@ -12,5 +12,8 @@ Its purpose is to provide users the ability to decide which log and warning mess
 to capture them, and to send them to a file.
 
 All messages use this logging facility which is based
-on the Python `logging` module rather than print statements
-which will save the messages to a local file called ``gdctb_cape_eea.log``.
+on the Python `logging` module rather than print statements.
+
+For more information on this system see the documentation in hermes-core.
+
+which will save the messages to a local file called ``myfile.log``.

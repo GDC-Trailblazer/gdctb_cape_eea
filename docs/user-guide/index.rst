@@ -4,7 +4,7 @@
 User's Guide
 ************
 
-Welcome to uor User guide.
+Welcome to our User guide.
 For more details checkout the :ref:`reference`.
 
 .. toctree::
@@ -12,4 +12,5 @@ For more details checkout the :ref:`reference`.
 
    Brief Tour <tour>
    data
+   customization
    logger
