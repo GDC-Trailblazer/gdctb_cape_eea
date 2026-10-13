@@ -35,9 +35,12 @@ def inspect_apids(filename: str) -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("filename", help="Path to the CCSDS binary file to inspect")
-    parser.add_argument("--apid", type=int, help="If given, extract only this APID's packets")
     parser.add_argument(
-        "--output", help="Output filename for the filtered packets (required with --apid)"
+        "--apid", type=int, help="If given, extract only this APID's packets"
+    )
+    parser.add_argument(
+        "--output",
+        help="Output filename for the filtered packets (required with --apid)",
     )
     args = parser.parse_args()
 

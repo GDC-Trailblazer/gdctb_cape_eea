@@ -32,7 +32,7 @@ def skymap_factory(l0_cdf, stepper, myEEA):
      SHEID (secondary header ID) is 1
     """
 
-    # l0_cdf["SHEID"] is 1 tells us this is a science packet, part of the sweep. often a file will have 
+    # l0_cdf["SHEID"] is 1 tells us this is a science packet, part of the sweep. often a file will have
     # a bunch or 0s at the beginning.
     sheid_science_packets = np.where(l0_cdf["SHEID"][:] == 1)[0]
     if len(sheid_science_packets) == 0:
@@ -74,7 +74,9 @@ def skymap_factory(l0_cdf, stepper, myEEA):
     epochs = ccsds_to_cdf_time.help_convert_eaa(l0_cdf)
     n_packets_total = len(epochs)
 
-    long_sweeps, short_sweeps = find_irregular_sweeps(beginning_packets, stepper, n_packets_total)
+    long_sweeps, short_sweeps = find_irregular_sweeps(
+        beginning_packets, stepper, n_packets_total
+    )
     if long_sweeps:
         log.warning(
             f"{len(long_sweeps)} irregular sweep(s) are longer than len(stepper.energies)="
@@ -86,13 +88,16 @@ def skymap_factory(l0_cdf, stepper, myEEA):
             f"{len(stepper.energies)} packets (sweep_index: actual_length): {short_sweeps}"
         )
 
-    
     # Now let's populate one sweep at a time and eventually the whole file
     package = []
     # ccsds coarse+fine -> cdf-epoch times.
     for ptr in range(len(beginning_packets)):
         start_idx = beginning_packets[ptr]
-        finish_idx = beginning_packets[ptr + 1] if ptr + 1 < len(beginning_packets) else n_packets_total
+        finish_idx = (
+            beginning_packets[ptr + 1]
+            if ptr + 1 < len(beginning_packets)
+            else n_packets_total
+        )
         if ptr in long_sweeps:
             # already known (from find_irregular_sweeps) to overrun the stepper table --
             log.warning(
@@ -127,11 +132,13 @@ def skymap_factory(l0_cdf, stepper, myEEA):
                 accum_slice[:, :N_AZIMUTH],  # the skymap: 32 real azimuth bins
                 accum_slice[:, PULSE_A_CHANNEL],  # TOF channel A overflow counter
                 accum_slice[:, PULSE_B_CHANNEL],  # TOF channel B overflow counter
-                l0_cdf["COUNTER1"][start_idx:finish_idx],  # e.g. l0_cdf["COUNTER1"][47] = 12
+                l0_cdf["COUNTER1"][
+                    start_idx:finish_idx
+                ],  # e.g. l0_cdf["COUNTER1"][47] = 12
                 l0_cdf["COUNTER2"][start_idx:finish_idx],  # l0_cdf["COUNTER2"][47] = 12
                 epochs[start_idx:finish_idx],
-                step_values['energy'],  # from the stepper table
-                step_values['elevation_angle'],  # from the stepper table
+                step_values["energy"],  # from the stepper table
+                step_values["elevation_angle"],  # from the stepper table
                 ptr,
             )
         )
@@ -144,7 +151,9 @@ def skymap_factory(l0_cdf, stepper, myEEA):
     myEEA.populate(result)
 
 
-def do_eea_sweep(counts, pulse_a, pulse_b, cnt1, cnt2, epoch, energy_vals, deflection_vals, ith_FSmap):
+def do_eea_sweep(
+    counts, pulse_a, pulse_b, cnt1, cnt2, epoch, energy_vals, deflection_vals, ith_FSmap
+):
     """
     This function populates the return dictionary for one sweep. All of the
     per-sweep slicing/splitting (ACCUM into counts vs. pulse_a/pulse_b, and the
@@ -174,27 +183,35 @@ def do_eea_sweep(counts, pulse_a, pulse_b, cnt1, cnt2, epoch, energy_vals, defle
         "counter1", "counter2".
     """
     return_package = {}
-    
-    return_package["Epoch"]  = epoch[0]     # here the "Epoch" is the traditional one: the start time of each sweep
-   
+
+    return_package["Epoch"] = epoch[
+        0
+    ]  # here the "Epoch" is the traditional one: the start time of each sweep
+
     # Fills this key with all of the Epoch times in the sweep for  (depends on the stepper table length,
     # (so far 63 and 164) and fills out to 256 with fill values
-    return_package["usec"]   = stuff_stepsize(epoch, (MAX_STEPS), EPOCHTIMEFILL) 
-    
+    return_package["usec"] = stuff_stepsize(epoch, (MAX_STEPS), EPOCHTIMEFILL)
+
     # counts has already been sliced to the 32 real azimuth bins in skymap_factory();
     # here we just gather it into a fixed MAX_STEPS x N_AZIMUTH array
     return_package["counts"] = np.full((MAX_STEPS, N_AZIMUTH), REAL4FILL)
-    return_package["counts"][0:counts.shape[0], 0:counts.shape[1]] = counts
+    return_package["counts"][0 : counts.shape[0], 0 : counts.shape[1]] = counts
 
     # pulse_a/pulse_b were already split out of the raw ACCUM field's last two channels
     # in skymap_factory(); here we just gather them into the dictionary, fill-stuffed to MAX_STEPS
-    return_package["pulse_a"] = stuff_stepsize(pulse_a, (MAX_STEPS), INTFILL)  # TOF channel A overflow counter, one per packet
-    return_package["pulse_b"] = stuff_stepsize(pulse_b, (MAX_STEPS), INTFILL)  # TOF channel B overflow counter, one per packet
+    return_package["pulse_a"] = stuff_stepsize(
+        pulse_a, (MAX_STEPS), INTFILL
+    )  # TOF channel A overflow counter, one per packet
+    return_package["pulse_b"] = stuff_stepsize(
+        pulse_b, (MAX_STEPS), INTFILL
+    )  # TOF channel B overflow counter, one per packet
 
     #  Since we might have several different stepper tables, we aren't putting them into separate
     #  energy/deflection dimensions. energy_vals was already looked up from the stepper table
     #  in skymap_factory(); here we just gather it into the dictionary, fill-stuffed to MAX_STEPS
-    return_package["energies"]    = stuff_stepsize(energy_vals, (MAX_STEPS), REAL4FILL)  # a static thing for each stepper table
+    return_package["energies"] = stuff_stepsize(
+        energy_vals, (MAX_STEPS), REAL4FILL
+    )  # a static thing for each stepper table
 
     # Note: the stepper table isn't just a list of energies and angles, it is also a description
     # of the sweep. e.g. if the sweep is just at one angle, the the deflection_vals will be that one
@@ -202,11 +219,17 @@ def do_eea_sweep(counts, pulse_a, pulse_b, cnt1, cnt2, epoch, energy_vals, defle
     # the stepper table's deflection_vals will reflect that pattern for each energy step.
     # deflection_vals was already looked up from the stepper table in skymap_factory(); here we
     # just gather it into the dictionary, fill-stuffed to MAX_STEPS
-    return_package["deflections"] = stuff_stepsize(deflection_vals, (MAX_STEPS), REAL4FILL)  # a static thing for each stepper table
+    return_package["deflections"] = stuff_stepsize(
+        deflection_vals, (MAX_STEPS), REAL4FILL
+    )  # a static thing for each stepper table
 
-    return_package["counter1"]    = stuff_stepsize(cnt1, (MAX_STEPS), INTFILL)         # number of counts in each packet (not each sweep)
+    return_package["counter1"] = stuff_stepsize(
+        cnt1, (MAX_STEPS), INTFILL
+    )  # number of counts in each packet (not each sweep)
 
-    return_package["counter2"]    = stuff_stepsize(cnt2, (MAX_STEPS), INTFILL)         # number of counts in each packet
+    return_package["counter2"] = stuff_stepsize(
+        cnt2, (MAX_STEPS), INTFILL
+    )  # number of counts in each packet
 
     return return_package
 
@@ -234,14 +257,20 @@ def find_irregular_sweeps(beginning_packets, stepper, n_packets_total):
         elif actual_len < expected_len:
             short_sweeps[ptr] = actual_len
     log.info(f"n short sweeps found:  {len(short_sweeps)}")
-    log.info(f"n long sweeps found:   {len(long_sweeps)}") 
-    log.info(f'n total sweeps found:  {len(beginning_packets)}')
-    log.info (f"average length of short sweeps: {np.mean(list(short_sweeps.values())) if short_sweeps else 0}")
-    log.info (f"average length of long sweeps: {np.mean(list(long_sweeps.values())) if long_sweeps else 0}")
+    log.info(f"n long sweeps found:   {len(long_sweeps)}")
+    log.info(f"n total sweeps found:  {len(beginning_packets)}")
+    log.info(
+        f"average length of short sweeps: {np.mean(list(short_sweeps.values())) if short_sweeps else 0}"
+    )
+    log.info(
+        f"average length of long sweeps: {np.mean(list(long_sweeps.values())) if long_sweeps else 0}"
+    )
     return long_sweeps, short_sweeps
 
 
-def manage_stepper_table_energies_and_angles(beginning_packets, stepper, packet, npackets, steps):
+def manage_stepper_table_energies_and_angles(
+    beginning_packets, stepper, packet, npackets, steps
+):
     """
     Look up this sweep's energy/deflection-angle values from the stepper table, indexed by
     each retained packet's own STEP field (not its position within the sweep), so a dropped
@@ -265,32 +294,32 @@ def manage_stepper_table_energies_and_angles(beginning_packets, stepper, packet,
     """
 
     stepvalues = {}
-    stepvalues['energy'] = []
-    stepvalues['elevation_angle'] = []
+    stepvalues["energy"] = []
+    stepvalues["elevation_angle"] = []
 
     if len(beginning_packets) == 0:
         log.warning("No sweep-start (STEP==0) packets found; nothing to process.")
-        stepvalues['energy'] = np.array(stepvalues['energy'])
-        stepvalues['elevation_angle'] = np.array(stepvalues['elevation_angle'])
+        stepvalues["energy"] = np.array(stepvalues["energy"])
+        stepvalues["elevation_angle"] = np.array(stepvalues["elevation_angle"])
         return stepvalues
 
     finish = npackets
     try:
         if beginning_packets[packet + 1]:
-            finish = beginning_packets[packet+1]
+            finish = beginning_packets[packet + 1]
     except (TypeError, IndexError):
         pass  # we are in last incomplete packet
-    
+
     # index the stepper table by each packet's own STEP value, not its position
     # within the sweep, so a dropped packet (which shortens the retained sweep
     # but doesn't shift the surviving packets' STEP values) doesn't misalign
     # every subsequent packet's energy/deflection assignment
     for i in range(beginning_packets[packet], finish):
         step_in_sweep = steps[i]
-        stepvalues['energy'].append(stepper.energies[step_in_sweep])
-        stepvalues['elevation_angle'].append(stepper.deflections[step_in_sweep])
-    stepvalues['energy'] = np.array( stepvalues['energy'] ) 
-    stepvalues['elevation_angle'] = np.array( stepvalues['elevation_angle'] ) 
+        stepvalues["energy"].append(stepper.energies[step_in_sweep])
+        stepvalues["elevation_angle"].append(stepper.deflections[step_in_sweep])
+    stepvalues["energy"] = np.array(stepvalues["energy"])
+    stepvalues["elevation_angle"] = np.array(stepvalues["elevation_angle"])
     return stepvalues
 
 
@@ -298,8 +327,6 @@ def stuff_stepsize(vals, maxsteps: tuple, fill):
     """
     SPDF won't allow variable size variables
     """
-    default_size                   = np.full(maxsteps, fill)  
-    default_size[0:vals.shape[0]]  = vals  
+    default_size = np.full(maxsteps, fill)
+    default_size[0 : vals.shape[0]] = vals
     return default_size
-
-    

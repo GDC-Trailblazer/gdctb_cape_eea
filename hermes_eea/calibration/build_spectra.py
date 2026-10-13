@@ -94,7 +94,9 @@ class Hermes_EEA_Data_Processor:
                     NDCube(
                         data=np.array(self.EEA.usec),
                         wcs=WCS(naxis=2),
-                        meta={"CATDESC": DERIVED_SPECTRA_CATDESC["hermes_eea_step_times"]},
+                        meta={
+                            "CATDESC": DERIVED_SPECTRA_CATDESC["hermes_eea_step_times"]
+                        },
                         unit=astropy_units.s,
                     ),
                 ),
@@ -103,7 +105,11 @@ class Hermes_EEA_Data_Processor:
                     NDCube(
                         data=np.array(self.EEA.EnergyLabels),
                         wcs=WCS(naxis=2),
-                        meta={"CATDESC": DERIVED_SPECTRA_CATDESC["hermes_eea_energy_profile"]},
+                        meta={
+                            "CATDESC": DERIVED_SPECTRA_CATDESC[
+                                "hermes_eea_energy_profile"
+                            ]
+                        },
                         unit=astropy_units.eV,
                     ),
                 ),
@@ -112,7 +118,11 @@ class Hermes_EEA_Data_Processor:
                     NDCube(
                         data=np.array(self.EEA.SunAngles),
                         wcs=WCS(naxis=2),
-                        meta={"CATDESC": DERIVED_SPECTRA_CATDESC["hermes_eea_deflection_angles"]},
+                        meta={
+                            "CATDESC": DERIVED_SPECTRA_CATDESC[
+                                "hermes_eea_deflection_angles"
+                            ]
+                        },
                         unit=astropy_units.deg,
                     ),
                 ),

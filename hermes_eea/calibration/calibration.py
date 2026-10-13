@@ -46,8 +46,7 @@ APIDS = {
     "SCIENCE": [260],
 }
 
-CURRENT_STEPPER_TABLE_FILE = Path( "boot_packet.txt")
-
+CURRENT_STEPPER_TABLE_FILE = Path("boot_packet.txt")
 
 
 def _peek_apid(data_filename: Path) -> int:
@@ -57,11 +56,11 @@ def _peek_apid(data_filename: Path) -> int:
     with open(data_filename, "rb") as fh:
         header = fh.read(2)
     if len(header) < 2:
-        raise ValueError(f"{data_filename} is too short to contain a CCSDS primary header.")
+        raise ValueError(
+            f"{data_filename} is too short to contain a CCSDS primary header."
+        )
     first_word = struct.unpack(">H", header)[0]
     return first_word & 0x07FF
-
-
 
 
 def get_stepper_table_for_file(data_filename) -> "StepperTable":
@@ -79,7 +78,9 @@ def get_apid_for_file(data_filename) -> int:
     except OSError as err:
         raise OSError(f"Could not read input file {data_filename!r}: {err}") from err
     except ValueError as err:
-        raise ValueError(f"Could not determine APID for input file {data_filename!r}: {err}") from err
+        raise ValueError(
+            f"Could not determine APID for input file {data_filename!r}: {err}"
+        ) from err
 
 
 def process_file(data_filename: Path) -> list:
@@ -128,7 +129,7 @@ def process_file(data_filename: Path) -> list:
        entry persists the stepper table name for the science files that follow, until the
        next boot packet.
     """
-   
+
     # Determine the APID (and, for science data, the StepperTable) from the file itself.
     if not is_boot_packet(data_filename):
         apid = _peek_apid(data_filename)
@@ -137,10 +138,10 @@ def process_file(data_filename: Path) -> list:
             if apid in APIDS["SCIENCE"]
             else None
         )
-    else:    
+    else:
         store_boot_packet(data_filename)
         return output_files
-       
+
     # Calibrate the Input File
     calibrated_file = calibrate_file(data_filename, destination_dir, stepper, apid)
     output_files.append(calibrated_file)
@@ -153,7 +154,9 @@ def process_file(data_filename: Path) -> list:
     return output_files
 
 
-def calibrate_file(data_filename: Path, destination_dir, stepper: StepperTable = None, apid: int = None) -> Path:
+def calibrate_file(
+    data_filename: Path, destination_dir, stepper: StepperTable = None, apid: int = None
+) -> Path:
     """
     Given an input data file, raise it to the next level
     (e.g. level 0 to level 1, level 1 to quicklook) it and return a new file.
@@ -173,9 +176,9 @@ def calibrate_file(data_filename: Path, destination_dir, stepper: StepperTable =
     """
     log.info(f"Calibrating file:{data_filename}.")
     # stepper = StepperTable(hermes_eea.stepper_table)
-  
+
     file_metadata = parse_science_filename(data_filename.name)
-    
+
     # check if level 0 binary file, if so call appropriate functions
     if (
         file_metadata["instrument"] == hermes_eea.INST_NAME
@@ -184,12 +187,15 @@ def calibrate_file(data_filename: Path, destination_dir, stepper: StepperTable =
     ):
         if stepper is None:
             # Note. To date a boot packet file will not make it here
-            raise ValueError(f"No StepperTable provided for level-0 science file {data_filename}.")
-        
-          
+            raise ValueError(
+                f"No StepperTable provided for level-0 science file {data_filename}."
+            )
+
         # call CCSDSPY to parse our packets.
         data = parse_l0_sci_packets(data_filename)
-        level1_filename = l0_sci_data_to_cdf(stepper, data, data_filename, destination_dir)
+        level1_filename = l0_sci_data_to_cdf(
+            stepper, data, data_filename, destination_dir
+        )
         output_filename = level1_filename
     elif (
         file_metadata["instrument"] == hermes_eea.INST_NAME
@@ -232,7 +238,6 @@ def calibrate_file(data_filename: Path, destination_dir, stepper: StepperTable =
         raise ValueError(f"The file {data_filename} is not recognized.")
 
     return output_filename
-
 
 
 def parse_l0_sci_packets(data_filename: Path) -> dict:
@@ -346,10 +351,16 @@ def _read_hk_fill_field_names() -> set:
     csv_path = os.path.join(hermes_eea._data_directory, "hermes_EEA_hk_packet_def.csv")
     with open(csv_path, "r") as fp:
         reader = csv.DictReader(fp, skipinitialspace=True)
-        return {row["name"].strip() for row in reader if row["data_type"].strip().lower() == "fill"}
+        return {
+            row["name"].strip()
+            for row in reader
+            if row["data_type"].strip().lower() == "fill"
+        }
 
 
-def l0_hk_data_to_cdf(data: dict, original_filename: Path, destination_dir: Path) -> Path:
+def l0_hk_data_to_cdf(
+    data: dict, original_filename: Path, destination_dir: Path
+) -> Path:
     """
     Write level 0 eea housekeeping data to a level 1 cdf file.
 
@@ -410,7 +421,8 @@ def l0_hk_data_to_cdf(data: dict, original_filename: Path, destination_dir: Path
     return cdf_path
 
 
-def l0_sci_data_to_cdf(stepper, data: dict, original_filename: Path, destination_dir: Path
+def l0_sci_data_to_cdf(
+    stepper, data: dict, original_filename: Path, destination_dir: Path
 ) -> Path:
     """
     Write level 0 eea science data to a level 1 cdf file.
@@ -453,7 +465,7 @@ def l0_sci_data_to_cdf(stepper, data: dict, original_filename: Path, destination
         """
         hermes_eea.stepper_table for now is defined in hermes_eea/hermes_eea/__init__.py
         """
-      
+
         # calibration_file = get_calibration_file(hermes_eea.stepper_table)
         # read_calibration_file(calibration_file)
 
@@ -533,51 +545,55 @@ def read_calibration_file(calib_filename: Path):
         calib.energies.append(int(line[8:10], 16))
         calib.deflections.append(int(line[10:12], 16))
 
+
 def is_binary_file(file_path, block_size=1024):
     """Returns True if the file contains binary data, False if it is clean ASCII."""
     try:
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             block = f.read(block_size)
-            
+
             # A null byte is a definitive indicator of a binary format
-            if b'\x00' in block:
+            if b"\x00" in block:
                 return True
-                
+
             # If any byte is outside the valid ASCII range (0-127), it's binary
             if any(byte > 127 for byte in block):
                 return True
-                
+
             return False
     except IOError:
         print(f"Error: Could not read file {file_path}")
         return False
-    
+
+
 def is_ascii_file(file_path, block_size=1024):
     """Returns True if the file contains only valid 7-bit ASCII characters."""
     try:
-        with open(file_path, 'rb') as f:
+        with open(file_path, "rb") as f:
             block = f.read(block_size)
-            
+
             # A null byte means it is a binary file, not ASCII text
-            if b'\x00' in block:
+            if b"\x00" in block:
                 return False
-                
+
             # ASCII characters only use byte values from 0 to 127
             if any(byte > 127 for byte in block):
                 return False
-                
+
             return True
     except IOError:
         print(f"Error: Could not read file {file_path}")
-        return False    
-    
+        return False
+
+
 def is_boot_packet(file_path):
     """Returns True if the file is a boot packet (ASCII text), False otherwise."""
     return is_ascii_file(file_path)
 
+
 def store_boot_packet(file_path):
     """Stores the boot packet filename for later use.
-    currently stubbed to write the name of the current stepper to 
+    currently stubbed to write the name of the current stepper to
     a file called boot_packet.txt"""
-    
-    CURRENT_STEPPER_TABLE_FILE.write_text(file_path.name)   
+
+    CURRENT_STEPPER_TABLE_FILE.write_text(file_path.name)

@@ -16,6 +16,7 @@ def first_stepper_file(tmp_path_factory):
     fn = Path(os.path.join(hermes_eea.FirstStepperTable))
     return fn
 
+
 def test_characterize_stepper(first_stepper_file):
-     stepper = StepperTable(first_stepper_file)
-     assert len(stepper.energies) == 164
+    stepper = StepperTable(first_stepper_file)
+    assert len(stepper.energies) == 164
