@@ -16,6 +16,12 @@ class StepperTable:
             gdctb_cape_eea._calibration_directory, stepper_table
         )
         self.parse_stepper_table()
+        issues = validate_stepper_table(self)
+        if issues:
+            raise ValueError(
+                f"Stepper table {stepper_table!r} failed validation:\n"
+                + "\n".join(f"- {issue}" for issue in issues)
+            )
         self.n_defl = len(get_unique_list(self.deflections))
         self.n_energies = len(get_unique_list(self.energies))
 
@@ -116,3 +122,79 @@ def get_unique_list(arr):
         if x not in unique_list:
             unique_list.append(x)
     return unique_list
+
+
+# Hard FOV centroid deflection requirement is +/-17 deg; the as-designed/as-built
+# optics and stepper tables operate over a narrower +/-16.875 deg range. Used here
+# as a sanity bound on the deflection column, not a strict engineering spec check.
+MAX_DEFLECTION_DEG = 90.0
+
+
+def validate_stepper_table(stepper: "StepperTable") -> list:
+    """
+    Sanity-check a parsed StepperTable's energy/deflection columns.
+
+    I'm just checking that the stepper table is in roughly the expected format:
+    1. energies are > 0 and there are very few if any repeats
+    2. declinations angles are < 90 and the repeat a lot. At least a lot more than energies.
+    
+    
+
+    Parameters
+    ----------
+    stepper: StepperTable
+        An already-parsed StepperTable instance.
+
+    Returns
+    -------
+    issues: list[str]
+        Human readable descriptions of any problems found. An empty list
+        means the table passed every check.
+    """
+    issues = []
+
+    energies = stepper.energies
+    deflections = stepper.deflections
+
+    if not energies or not deflections:
+        issues.append("Stepper table has no parsed energy/deflection rows.")
+        return issues
+
+    if len(energies) != len(deflections):
+        issues.append(
+            f"energies ({len(energies)}) and deflections ({len(deflections)}) "
+            "have different lengths; the file may be malformed."
+        )
+
+    # Range checks
+    bad_deflections = [d for d in deflections if abs(d) > MAX_DEFLECTION_DEG]
+    if bad_deflections:
+        issues.append(
+            f"{len(bad_deflections)} deflection value(s) exceed "
+            f"+/-{MAX_DEFLECTION_DEG} deg (e.g. {bad_deflections[:5]}); "
+            "the energy/deflection columns may be swapped."
+        )
+
+    non_positive_energies = [e for e in energies if e <= 0]
+    if non_positive_energies:
+        issues.append(
+            f"{len(non_positive_energies)} energy value(s) are <= 0 eV "
+            f"(e.g. {non_positive_energies[:5]}); energies must be positive."
+        )
+
+    # Repetition check: deflection should repeat a lot more than energy does.
+    n_unique_energies = len(get_unique_list(energies))
+    n_unique_deflections = len(get_unique_list(deflections))
+    energy_unique_ratio = n_unique_energies / len(energies)
+    deflection_unique_ratio = n_unique_deflections / len(deflections)
+
+    if deflection_unique_ratio >= energy_unique_ratio:
+        issues.append(
+            "Deflection column does not repeat more than the energy column "
+            f"(unique deflections: {n_unique_deflections}/{len(deflections)} "
+            f"= {deflection_unique_ratio:.2f}, unique energies: "
+            f"{n_unique_energies}/{len(energies)} = {energy_unique_ratio:.2f}); "
+            "the energy/deflection columns may be swapped."
+        )
+
+    return issues

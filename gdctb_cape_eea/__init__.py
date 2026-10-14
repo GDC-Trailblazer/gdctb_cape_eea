@@ -34,10 +34,12 @@ log.debug(f"gdctb_cape_eea version: {__version__}")
 MISSION_NAME = "GDCTB"
 INSTRUMENT_NAME = "cape_eea"
 
-# NOTE: kept as "eea" (not INSTRUMENT_NAME) because the EEA science/calibration file
-# naming convention ported from hermes_eea (e.g. GDCTB_EEA_l0_*.bin) still encodes
-# "eea" as the instrument field; see parse_science_filename().
-INST_NAME = "eea"
+# Kept as a separate alias (rather than inlining INSTRUMENT_NAME everywhere) to mirror
+# the ported hermes_eea code's INST_NAME/INST_SHORTNAME/INST_TARGETNAME naming, and to
+# match swxsoc's {mission}_{instrument} package-naming convention (get_instrument_package()):
+# the registered instrument "name" must equal this package's own name suffix ("cape_eea")
+# so that, once available, get_instrument_package("cape_eea") resolves to "gdctb_cape_eea".
+INST_NAME = INSTRUMENT_NAME
 INST_SHORTNAME = "eea"
 INST_TARGETNAME = "EEA"
 INST_FULLNAME = "Electron Electrostatic Analyzer"
@@ -49,8 +51,6 @@ INST_TO_TARGETNAME = {INST_NAME: INST_TARGETNAME}
 # swxsoc.util.util.parse_science_filename()/create_science_filename() would reject
 # every GDCTB_EEA_* filename. Register this instrument directly so filename
 # validation works regardless of which swxsoc config.yml happened to be loaded.
-# The registry key must be INST_NAME ("eea"), not INSTRUMENT_NAME, since that is
-# what the ported hermes_eea calibration code compares file_metadata["instrument"] against.
 if not config["mission"]["inst_names"]:
     config["mission"].update(
         {

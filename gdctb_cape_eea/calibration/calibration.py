@@ -24,6 +24,7 @@ from gdctb_cape_eea.io.EEA import EEA
 from gdctb_cape_eea.SkymapFactory import skymap_factory
 from gdctb_cape_eea.Stepper.StepperTable import StepperTable
 from gdctb_cape_eea.util.time import ccsds_to_cdf_time
+from gdctb_cape_eea.Stepper.StepperTable import get_unique_list
 
 # cdflib -> spacepy
 from spacepy.pycdf import lib
@@ -139,7 +140,9 @@ def process_file(data_filename: Path) -> list:
             else None
         )
     else:
+        # PUT PACKET IN THE DATABASE:
         store_boot_packet(data_filename)
+        # NOTHING ELSE TO DO FOR BOOT PACKETS but to store them for later use
         return output_files
 
     # Calibrate the Input File
@@ -193,43 +196,15 @@ def calibrate_file(
 
         # call CCSDSPY to parse our packets.
         data = parse_l0_sci_packets(data_filename)
+        
+        # This is where most of the business logic for converting level 0 science data 
+        # to level 1 happens.
         level1_filename = l0_sci_data_to_cdf(
             stepper, data, data_filename, destination_dir
         )
+        
         output_filename = level1_filename
-    elif (
-        file_metadata["instrument"] == gdctb_cape_eea.INST_NAME
-        and file_metadata["level"] == "l1"
-    ):
-        # generate the quicklook data
-        #
-        # the following shows an example flow for calibrating a file
-        # data = read_file(data_filename)
-        # calib_file = get_calibration_file(data_filename)
-        # if calib_file is None:
-        #    raise ValueError(f"Calibration file for {data_filename} not found.")
-        # else:
-        #    calib_data = read_calibration_file(calib_file)
-
-        # test opening the file
-        with open(data_filename, "r") as fp:
-            pass
-
-        # now that you have your calibration data, you can calibrate the science data
-        ql_filename = data_filename.parent / create_science_filename(
-            file_metadata["instrument"],
-            file_metadata["time"],
-            "ql",
-            file_metadata["version"],
-        )
-
-        # write your cdf file below
-        # create an empty file for testing purposes
-        with open(data_filename.parent / ql_filename, "w"):
-            pass
-        # here
-        data = parse_l0_sci_packets(data_filename)
-        output_filename = ql_filename
+    
     elif apid in APIDS["HK"]:
         log.info(f"Processing HK file: {data_filename}.")
         data = parse_hk_packets(data_filename)
@@ -385,7 +360,7 @@ def l0_hk_data_to_cdf(
     iso_datetimes = Time([lib.tt2000_to_datetime(e) for e in epoch])
     hk_timeseries = TimeSeries(time=iso_datetimes)
 
-    bare_attrs = SWXData.global_attribute_template("eea", "l1", "1.0.0")
+    bare_attrs = SWXData.global_attribute_template(gdctb_cape_eea.INST_NAME, "l1", "1.0.0")
     # Distinguishes this from the sci L1 CDF in the output filename (Logical_file_id).
     bare_attrs["Instrument_mode"] = "hk"
     hermes_eea_hk_data = SWXData(timeseries=hk_timeseries, meta=bare_attrs)
@@ -592,7 +567,7 @@ def is_boot_packet(file_path):
 
 
 def store_boot_packet(file_path):
-    """Stores the boot packet filename for later use.
+    """Stores the boot packet info in DATABASE for later use.
     currently stubbed to write the name of the current stepper to
     a file called boot_packet.txt"""
 

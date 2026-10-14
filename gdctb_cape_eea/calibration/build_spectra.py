@@ -67,7 +67,7 @@ class Hermes_EEA_Data_Processor:
         ts_1d_uQ = TimeSeries(time=iso_datetimes)
 
         self._hermes_eea_spectra()
-        bare_attrs = SWXData.global_attribute_template("eea", "l1", "1.0.0")
+        bare_attrs = SWXData.global_attribute_template(gdctb_cape_eea.INST_NAME, "l1", "1.0.0")
         ts_justTime = TimeSeries(time=iso_datetimes)
 
         self.hermes_eea_data = SWXData(

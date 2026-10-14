@@ -15,7 +15,7 @@ import sys
 from spacepy import pycdf
 from gdctb_cape_eea import log
 import numpy as np
-from gdctb_cape_eea.Stepper.StepperTable import StepperTable
+from gdctb_cape_eea.Stepper.StepperTable import StepperTable, get_unique_list
 from gdctb_cape_eea.calibration.calibration import (
     APIDS,
     get_stepper_table_for_file,
@@ -72,8 +72,12 @@ def test_read_ccsdspy(small_level0_file):
     result = read_ccsds(small_level0_file, pkt)
     if is_hk:
         assert len(result["ANODE_V"]) > 0
+        n_uniq = len(get_unique_list(result["ANODE_V"]))
+        ratio = n_uniq / len(result["ANODE_V"])
+        assert ratio < 0.2  # Expecting a lot of repetition in ANODE_V for HK packets
     else:
         assert len(result["ACCUM"]) > 0
+        assert len(result["ACCUM"][0]) == 34 
 
 
 def test_process_file(small_level0_file):
