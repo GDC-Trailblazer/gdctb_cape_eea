@@ -32,8 +32,8 @@ jobs:
         python -m pip install -e .[style]
     - name: Lint with Black
       run: |
-        black --check --diff hermes_eea
+        black --check --diff gdctb_cape_eea
     - name: flake8
       run: |
-        flake8 --count hermes_eea
+        flake8 --count gdctb_cape_eea
 

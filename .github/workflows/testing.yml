@@ -32,7 +32,7 @@ jobs:
         pip install -e .[test]
 
     - name: Run tests on Windows, Linux and MacOS
-      run: pytest --pyargs hermes_eea --cov hermes_eea
+      run: pytest --pyargs gdctb_cape_eea --cov gdctb_cape_eea
 
     - name: Upload coverage reports to Codecov with GitHub Action
       uses: codecov/codecov-action@v3

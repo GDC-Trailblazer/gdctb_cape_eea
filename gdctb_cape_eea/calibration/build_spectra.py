@@ -1,8 +1,8 @@
-from hermes_core.timedata import HermesData
+from swxsoc.swxdata import SWXData
 import astropy.units as astropy_units
 from astropy.timeseries import TimeSeries
 from astropy.time import Time
-from hermes_core.timedata import HermesData
+from swxsoc.swxdata import SWXData
 from astropy.nddata import NDData
 from ndcube import NDCube, NDCollection
 import numpy as np
@@ -10,7 +10,7 @@ from astropy.wcs import WCS
 from spacepy.pycdf import lib
 import csv
 import os
-import hermes_eea
+import gdctb_cape_eea
 
 
 def _read_sci_field_catdesc() -> dict:
@@ -18,7 +18,7 @@ def _read_sci_field_catdesc() -> dict:
     hermes_EEA_sci_packet_def.csv, so descriptions stay in sync with the packet
     definition instead of being duplicated in code.
     """
-    csv_path = os.path.join(hermes_eea._data_directory, "hermes_EEA_sci_packet_def.csv")
+    csv_path = os.path.join(gdctb_cape_eea._data_directory, "hermes_EEA_sci_packet_def.csv")
     with open(csv_path, "r") as fp:
         reader = csv.DictReader(fp, skipinitialspace=True)
         return {row["name"].strip(): row["description"].strip() for row in reader}
@@ -67,10 +67,10 @@ class Hermes_EEA_Data_Processor:
         ts_1d_uQ = TimeSeries(time=iso_datetimes)
 
         self._hermes_eea_spectra()
-        bare_attrs = HermesData.global_attribute_template("eea", "l1", "1.0.0")
+        bare_attrs = SWXData.global_attribute_template("eea", "l1", "1.0.0")
         ts_justTime = TimeSeries(time=iso_datetimes)
 
-        self.hermes_eea_data = HermesData(
+        self.hermes_eea_data = SWXData(
             timeseries=ts_1d_uQ,  # this is stats time series ....with no stats...
             spectra=self.multiple_spectra,
             meta=bare_attrs,
@@ -83,7 +83,7 @@ class Hermes_EEA_Data_Processor:
         """
         EEA multi-dimensional variables
         This is a solution for loading multi-dimension variables and their metadata into CDF
-        HermesData is used for "regular" time-series variables such as the Epoch and stats variables above.
+        SWXData is used for "regular" time-series variables such as the Epoch and stats variables above.
         """
         catdesc = _read_sci_field_catdesc()
 

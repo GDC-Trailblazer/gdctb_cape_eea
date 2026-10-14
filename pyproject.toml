@@ -5,15 +5,15 @@ requires = ["setuptools>=45",
 build-backend = 'setuptools.build_meta'
 
 [project]
-name = "hermes_eea"
-description = "A Python package to process and analyze data from the HERMES eea instrument."
+name = "gdctb_cape_eea"
+description = "A Python package to process and analyze data from the GDCTB CAPE EEA instrument."
 readme = "README.rst"
 dynamic = ["version"]
 authors = [{name = "Steven Christe", email="steven.d.christe@nasa.gov"},
            {name = "Damian Barrous Dumme", email="damianbarrous@gmail.com"}]
 license = {file = "LICENSE.rst"}
 requires-python = ">=3.9"
-keywords = ["hermes", "nasa mission", "space weather"]
+keywords = ["gdctb", "nasa mission", "space weather"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache 2.0",
@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 dependencies = [
-  'hermes_core @ git+https://github.com/HERMES-SOC/hermes_core/',
+  'swxsoc',
   'ccsdspy @ git+https://github.com/ddasilva/ccsdspy.git'
 ]
 
@@ -59,17 +59,17 @@ style = [
 ]
 
 [tool.setuptools.package-data]
-"hermes_eea.data" = ["**"]
+"gdctb_cape_eea.data" = ["**"]
 
 [tool.setuptools]
-packages = ["hermes_eea"]
+packages = ["gdctb_cape_eea"]
 
 [tool.setuptools_scm]
-write_to = "hermes_eea/_version.py"
+write_to = "gdctb_cape_eea/_version.py"
 
 [tool.pytest.ini_options]
 testpaths = [
-   "hermes_eea/tests",
+   "gdctb_cape_eea/tests",
    "docs"
 ]
 
@@ -80,21 +80,21 @@ addopts = "--doctest-rst"
 
 [tool.coverage.run]
 omit = [
-  'hermes_eea/__init*',
-  'hermes_eea/conftest.py',
-  'hermes_eea/*setup_package*',
-  'hermes_eea/tests/*',
-  'hermes_eea/*/tests/*',
-  'hermes_eea/extern/*',
-  'hermes_eea/version*',
-  '*/hermes_eea/__init*',
-  '*/hermes_eea/conftest.py',
-  '*/hermes_eea/*setup_package*',
-  '*/hermes_eea/tests/*',
-  '*/hermes_eea/*/tests/*',
-  '*/hermes_eea/extern/*',
-  '*/hermes_eea/version*',
+  'gdctb_cape_eea/__init*',
+  'gdctb_cape_eea/conftest.py',
+  'gdctb_cape_eea/*setup_package*',
+  'gdctb_cape_eea/tests/*',
+  'gdctb_cape_eea/*/tests/*',
+  'gdctb_cape_eea/extern/*',
+  'gdctb_cape_eea/version*',
+  '*/gdctb_cape_eea/__init*',
+  '*/gdctb_cape_eea/conftest.py',
+  '*/gdctb_cape_eea/*setup_package*',
+  '*/gdctb_cape_eea/tests/*',
+  '*/gdctb_cape_eea/*/tests/*',
+  '*/gdctb_cape_eea/extern/*',
+  '*/gdctb_cape_eea/version*',
 ]
 
 [tool.black]
-extend-exclude = '''hermes_eea/_version.py'''
+extend-exclude = '''gdctb_cape_eea/_version.py'''

@@ -15,12 +15,12 @@ os.environ["CDF_LIB"] = "../cdf/lib"
 sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
-project = "hermes_eea"
+project = "gdctb_cape_eea"
 copyright = ""
-author = "The HERMES Team"
+author = "The GDCTB Team"
 
 # The full version, including alpha/beta/rc tags
-from hermes_eea import __version__
+from gdctb_cape_eea import __version__
 
 release = __version__
 is_development = ".dev" in __version__
@@ -102,7 +102,7 @@ intersphinx_mapping = {
     ),
     "astropy": ("http://docs.astropy.org/en/stable/", None),
     "sunpy": ("https://docs.sunpy.org/en/stable/", None),
-    "hermes_core": ("https://hermes-core.readthedocs.io/en/latest/", None),
+    "swxsoc": ("https://swxsoc.readthedocs.io/en/latest/", None),
 }
 
 # -- Options for HTML output -------------------------------------------------

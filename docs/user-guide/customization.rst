@@ -11,8 +11,8 @@ This package uses a :file:`configrc` configuration file to customize certain pro
 You can control a number of key features such as where your data will download to. 
 This configuration file in a platform specific directory, which you can see the path for by running::
 
-  >>> import hermes_eea
-  >>> hermes_eea.print_config()  # doctest: +SKIP
+  >>> import gdctb_cape_eea
+  >>> gdctb_cape_eea.print_config()  # doctest: +SKIP
 
 
 To maintain your own customizations place a copy of the default file into the *first* path printed above.
@@ -30,8 +30,8 @@ interactively from the python shell. All of the settings are stored in a
 Python ConfigParser instance called ``sunpy.config``, which is global to
 the package. Settings can be modified directly, for example::
 
-    import hermes_eea
-    hermes_eea.config.set('downloads', 'download_dir', '/home/user/Downloads')
+    import gdctb_cape_eea
+    gdctb_cape_eea.config.set('downloads', 'download_dir', '/home/user/Downloads')
 
 
 .. configrc-sample:
@@ -43,4 +43,4 @@ A sample configrc file
 
     `(download) <../_static/configrc>`__
 
-.. literalinclude:: ../../hermes_eea/data/configrc
+.. literalinclude:: ../../gdctb_cape_eea/data/configrc

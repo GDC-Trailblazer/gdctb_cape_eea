@@ -10,10 +10,10 @@ A log file can span multiple distinct beam tests run back-to-back; use
 
 Usage
 -----
-    python -m hermes_eea.util.jsonl_to_bin log_0.jsonl output.bin
-    python -m hermes_eea.util.jsonl_to_bin log_0.jsonl output.bin --packet-name EEAtlmIntAccum --max-packets 500
-    python -m hermes_eea.util.jsonl_to_bin log_0.jsonl output.bin --apid 265
-    python -m hermes_eea.util.jsonl_to_bin log_1.jsonl tb_ea_uneg135.bin \
+    python -m gdctb_cape_eea.util.jsonl_to_bin log_0.jsonl output.bin
+    python -m gdctb_cape_eea.util.jsonl_to_bin log_0.jsonl output.bin --packet-name EEAtlmIntAccum --max-packets 500
+    python -m gdctb_cape_eea.util.jsonl_to_bin log_0.jsonl output.bin --apid 265
+    python -m gdctb_cape_eea.util.jsonl_to_bin log_1.jsonl tb_ea_uneg135.bin \
         --start-time "06/10/2026, 14:18:44.0" --end-time "06/10/2026, 14:32:16.0"
 """
 

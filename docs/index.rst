@@ -1,7 +1,7 @@
-hermes_eea Documentation
+gdctb_cape_eea Documentation
 -------------------------------
 
-This is the documentation for the hermes_eea Python package for processing and analyzing data from the Electron Electrostatic Analyzer (EEA) on the Lunar Gateway.
+This is the documentation for the gdctb_cape_eea Python package for processing and analyzing data from the Electron Electrostatic Analyzer (EEA) on the Lunar Gateway.
 
 
 .. toctree::

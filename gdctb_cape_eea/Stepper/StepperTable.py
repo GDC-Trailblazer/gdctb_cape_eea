@@ -1,6 +1,6 @@
 from pathlib import Path
-import hermes_eea
-from hermes_eea.io import read_file
+import gdctb_cape_eea
+from gdctb_cape_eea.io import read_file
 import os
 import numpy as np
 
@@ -13,7 +13,7 @@ class StepperTable:
                 f"stepper_table must be a non-empty filename, got {stepper_table!r}"
             )
         self.stepper_table_file = os.path.join(
-            hermes_eea._calibration_directory, stepper_table
+            gdctb_cape_eea._calibration_directory, stepper_table
         )
         self.parse_stepper_table()
         self.n_defl = len(get_unique_list(self.deflections))

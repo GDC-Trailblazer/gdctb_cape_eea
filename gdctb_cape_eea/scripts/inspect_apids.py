@@ -4,8 +4,8 @@ Optionally extract just one APID's packets into a new file.
 
 Usage
 -----
-    python -m hermes_eea.scripts.inspect_apids path/to/file.bin
-    python -m hermes_eea.scripts.inspect_apids path/to/file.bin --apid 260 --output only_260.bin
+    python -m gdctb_cape_eea.scripts.inspect_apids path/to/file.bin
+    python -m gdctb_cape_eea.scripts.inspect_apids path/to/file.bin --apid 260 --output only_260.bin
 """
 
 import argparse
@@ -13,7 +13,7 @@ import collections
 
 from ccsdspy.utils import read_primary_headers
 
-from hermes_eea.util.filter_apid import filter_apid
+from gdctb_cape_eea.util.filter_apid import filter_apid
 
 
 def inspect_apids(filename: str) -> None:

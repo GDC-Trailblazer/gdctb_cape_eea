@@ -155,7 +155,7 @@ if __name__ == "__main__":
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
 
-    golden = "hermes_eea/tests/hermes_eea_l1_20000101T170901_v1.0.0.cdf"
+    golden = "gdctb_cape_eea/tests/hermes_eea_l1_20000101T170901_v1.0.0.cdf"
     artifact = "/Users/rstrub/Downloads/processed-files/hermes_eea_l1_20000101T170901_v1.0.0.cdf"
     artifact = "/Users/rstrub/hermes_eea_l1_20000101T170901_v1.0.0.cdf"
 

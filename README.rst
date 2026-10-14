@@ -14,23 +14,23 @@ Overview
     * - build status
       - |testing| |codestyle| |coverage|
 
-.. |docs| image:: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/docs.yml/badge.svg
-    :target: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/docs.yml
+.. |docs| image:: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/docs.yml/badge.svg
+    :target: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/docs.yml
     :alt: Documentation Build Status
 
-.. |testing| image:: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/testing.yml/badge.svg
-    :target: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/testing.yml
+.. |testing| image:: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/testing.yml/badge.svg
+    :target: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/testing.yml
     :alt: Build Status
 
-.. |coverage| image:: https://codecov.io/gh/HERMES-SOC/hermes_eea/branch/main/graph/badge.svg?token=PSEF942JD2 
-    :target: https://codecov.io/gh/HERMES-SOC/hermes_eea
+.. |coverage| image:: https://codecov.io/gh/rstrub/gdctb_cape_eea/branch/main/graph/badge.svg?token=PSEF942JD2 
+    :target: https://codecov.io/gh/rstrub/gdctb_cape_eea
 
-.. |codestyle| image:: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/codestyle.yml/badge.svg
-    :target: https://github.com/HERMES-SOC/hermes_eea/actions/workflows/codestyle.yml
+.. |codestyle| image:: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/codestyle.yml/badge.svg
+    :target: https://github.com/rstrub/gdctb_cape_eea/actions/workflows/codestyle.yml
     :alt: Codestyle and linting using flake8
 
-.. |readthedocs| image:: https://readthedocs.org/projects/hermes-eea/badge/?version=latest
-    :target: https://hermes-eea.readthedocs.io/en/latest/?badge=latest
+.. |readthedocs| image:: https://readthedocs.org/projects/gdctb-cape-eea/badge/?version=latest
+    :target: https://gdctb-cape-eea.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
 .. end-badges
@@ -63,7 +63,7 @@ more information.
 Contributing
 ------------
 
-We love contributions! hermes_eea is open source,
+We love contributions! gdctb_cape_eea is open source,
 built on open source, and we'd love to have you hang out in our community.
 
 **Imposter syndrome disclaimer**: We want your help. No, really.
@@ -89,7 +89,7 @@ the errors and assumptions that seasoned contributors have glossed over.
 Note: This disclaimer was originally written by
 `Adrienne Lowe <https://github.com/adriennefriend>`_ for a
 `PyCon talk <https://www.youtube.com/watch?v=6Uj746j9Heo>`_, and was adapted by
-hermes_eea based on its use in the README file for the
+gdctb_cape_eea based on its use in the README file for the
 `MetPy project <https://github.com/Unidata/MetPy>`_.
 
 Code of Conduct

@@ -1,8 +1,8 @@
 import numpy as np
-from hermes_core import log
-from hermes_eea.io import EEA
-from hermes_eea.util.time import ccsds_to_cdf_time
-from hermes_eea.io.EEA import (
+from gdctb_cape_eea import log
+from gdctb_cape_eea.io import EEA
+from gdctb_cape_eea.util.time import ccsds_to_cdf_time
+from gdctb_cape_eea.io.EEA import (
     MAX_STEPS,
     N_AZIMUTH,
     PULSE_A_CHANNEL,
@@ -122,7 +122,7 @@ def skymap_factory(l0_cdf, stepper, myEEA):
             continue
         # ACCUM carries 34 raw channels per packet: the first N_AZIMUTH (32) are real
         # sky-map azimuth bins; the last two are TOF-ASIC overflow counters (see
-        # hermes_eea.io.EEA PULSE_A_CHANNEL/PULSE_B_CHANNEL), not azimuth measurements,
+        # gdctb_cape_eea.io.EEA PULSE_A_CHANNEL/PULSE_B_CHANNEL), not azimuth measurements,
         # so they're split out here rather than copied into the skymap as if they were.
         accum_slice = l0_cdf["ACCUM"][start_idx:finish_idx]
         # So note here we are appending the entire sweep's worth of data to the package, not just a single packet.
