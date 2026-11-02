@@ -105,7 +105,7 @@ def test_read_ccsdspy(small_level0_file):
     apid = get_apid_for_file(small_level0_file)
     # HK and science packets use different fixed-length layouts.
     key = next(k for k, v in APIDS.items() if apid in v)
-    
+
     if key == "BOOT":
         packet_def_csv = "gdctb_cape-eea_boot_packet_def.csv"
     elif key == "HK":
@@ -114,7 +114,7 @@ def test_read_ccsdspy(small_level0_file):
         packet_def_csv = "gdctb_cape-eea_sci_packet_def.csv"
     else:
         raise ValueError(f"Unexpected APID key: {key}")
-    
+
     pkt = ccsdspy.FixedLength.from_file(
         os.path.join(gdctb_cape_eea._data_directory, packet_def_csv)
     )
@@ -125,8 +125,9 @@ def test_read_ccsdspy(small_level0_file):
         ratio = n_uniq / len(result["ANODE_V"])
         assert ratio < 0.2  # Expecting a lot of repetition in ANODE_V for HK packets
     elif key == "BOOT":
-        assert result['BSUM'] 
-        assert result['BTABSEL'] in [0,1,2,3,4,5,6,7]  # Replace [0] with the expected value for BTABSEL in boot packets
+        assert result["BSUM"]
+        assert result["BTABSEL"] in [0, 1, 2, 3, 4, 5, 6, 7]
+
     else:
         assert len(result["ACCUM"]) > 0
         assert len(result["ACCUM"][0]) == 34
@@ -185,9 +186,9 @@ def verify_l1a(data_filename, output_l1a):
                 if len(cdf[var].shape) >= 2 and "INT" in str(cdf[var]):
                     print(var)
                     assert cdf[var][0][stepper.n_defl * stepper.n_energies] in [
-                    REAL4FILL,
-                    EPOCHTIMEFILL,
-                    INTFILL,
+                        REAL4FILL,
+                        EPOCHTIMEFILL,
+                        INTFILL,
                     ]
 
         if SKYMAP_VAR not in variable_list:

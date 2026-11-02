@@ -30,13 +30,19 @@ class EEA:
     Logical_file_id: Any = None
     Data_version: Any = None
     # ener, defl
-    step_times: list = field(default_factory=list)  # [n_sweeps, MAX_STEPS] seconds since each sweep's Epoch
-    PulseA: list = field(default_factory=list) # [n_sweeps, MAX_STEPS] TOF channel A overflow counter (ACCUM bin 33)
-    PulseB: list = field(default_factory=list) # [n_sweeps, MAX_STEPS] TOF channel B overflow counter (ACCUM bin 32)
+    step_times: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] seconds since each sweep's Epoch
+    PulseA: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] TOF channel A overflow counter (ACCUM bin 33)
+    PulseB: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] TOF channel B overflow counter (ACCUM bin 32)
     Counter1: list = field(default_factory=list)
     Counter2: list = field(default_factory=list)
-    ACCUM: list = field(default_factory=list)         # [41, 4, 32]. [ene, defl, accums]
-    SunAngles: list = field(default_factory=list)     # [4,32] really just metadata
+    ACCUM: list = field(default_factory=list)  # [41, 4, 32]. [ene, defl, accums]
+    SunAngles: list = field(default_factory=list)  # [4,32] really just metadata
     EnergyLabels: list = field(default_factory=list)  # [41] really just metadata
     # stats: list = field(default_factory=list)       # [41] really just metadata
 
@@ -48,7 +54,9 @@ class EEA:
             if self.name_align(attrname) in self.default_obj:
                 return self.default_obj[self.name_align(attrname)]
 
-    def populate(self, sweeps: list[dict[str, Any]]):  # EEA sweep ~ FPI skymap EEA_sweep time is n_steps * .006 secs
+    def populate(
+        self, sweeps: list[dict[str, Any]]
+    ):  # EEA sweep ~ FPI skymap EEA_sweep time is n_steps * .006 secs
         for record in sweeps:
             self.Epoch.append(record["Epoch"])
             self.step_times.append(self.append("step_times", record))

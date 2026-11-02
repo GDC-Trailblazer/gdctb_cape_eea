@@ -10,8 +10,6 @@ NANOS_PER_MICRO = 1000
 NANOS_PER_SEC = 1000000000
 
 
-
-
 def convert_ccsds_times_to_cdf(decoded) -> np.ndarray:
     """
     Parameters

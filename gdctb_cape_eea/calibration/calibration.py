@@ -44,11 +44,7 @@ __all__ = [
     "process_file",
     "read_calibration_file",
 ]
-APIDS = {
-    "HK": [265],
-    "SCIENCE": [260],
-    "BOOT": [266]
-}
+APIDS = {"HK": [265], "SCIENCE": [260], "BOOT": [266]}
 
 
 def _peek_apid(data_filename: Path) -> int:
@@ -182,7 +178,8 @@ def calibrate_file(
     if (
         file_metadata["instrument"] == gdctb_cape_eea.INST_NAME
         and apid in APIDS["SCIENCE"]
-        and file_metadata["level"] in ("l0", "raw")  # "raw": APID-named files, e.g. _260_
+        and file_metadata["level"]
+        in ("l0", "raw")  # "raw": APID-named files, e.g. _260_
     ):
         if stepper is None:
             # Note. To date a boot packet file will not make it here
@@ -533,6 +530,6 @@ def is_binary_file(file_path, block_size=1024):
 def is_boot_packet(file_path):
     """Returns True if the file is a boot packet (ASCII text), False otherwise."""
     if is_ascii_file(file_path):
-        return True # we have both ascii and binary boot packets
+        return True  # we have both ascii and binary boot packets
     apid = get_apid_for_file(file_path)
     return apid == 266
