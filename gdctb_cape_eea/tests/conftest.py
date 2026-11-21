@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from gdctb_cape_eea.stepper.StepperTable import CURRENT_STEPPER_TABLE_FILE
+from gdctb_cape_eea.stepper.stepper_table import CURRENT_STEPPER_TABLE_FILE
 
 TEST_PROCESSING = [
     "20261014040843395730000_boot.bin",

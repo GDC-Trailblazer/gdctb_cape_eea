@@ -52,7 +52,7 @@ test = [
   'coverage[toml]'
 ]
 
-style = ['ruff']
+style = ['ruff==0.17.6']
 
 [tool.setuptools.package-data]
 "gdctb_cape_eea.data" = ["**"]

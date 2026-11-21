@@ -9,7 +9,7 @@ from ccsdspy.utils import iter_packet_bytes
 
 import gdctb_cape_eea
 from gdctb_cape_eea.io import read_raw_hk
-from gdctb_cape_eea.stepper.StepperTable import StepperTable, validate_stepper_table
+from gdctb_cape_eea.stepper.stepper_table import StepperTable, validate_stepper_table
 
 
 def test_read_raw_hk():

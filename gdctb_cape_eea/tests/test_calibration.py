@@ -20,7 +20,7 @@ from gdctb_cape_eea import (
 )
 from gdctb_cape_eea.calibration.calibration import APIDS
 from gdctb_cape_eea.io import get_apid_for_file, is_boot_packet, read_ccsds
-from gdctb_cape_eea.stepper.StepperTable import (
+from gdctb_cape_eea.stepper.stepper_table import (
     CURRENT_STEPPER_TABLE_FILE,
     get_stepper_table_for_file,
     get_stepper_table_name_for_btabsel,

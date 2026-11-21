@@ -3,6 +3,8 @@ on: [ push, pull_request ]
 jobs:
   ruff:
     runs-on: ubuntu-latest
+    env:
+      RUFF_OUTPUT_FORMAT: github
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/ruff-action@v3

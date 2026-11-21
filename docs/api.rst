@@ -23,4 +23,4 @@ containing other APIDs. ``l0_hk_data_to_cdf`` accepts either the resulting
 .. automodapi:: gdctb_cape_eea
 .. automodapi:: gdctb_cape_eea.calibration.calibration
 .. automodapi:: gdctb_cape_eea.io.file_tools
-.. automodapi:: gdctb_cape_eea.stepper.StepperTable
+.. automodapi:: gdctb_cape_eea.stepper.stepper_table

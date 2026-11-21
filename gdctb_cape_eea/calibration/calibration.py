@@ -28,7 +28,7 @@ from gdctb_cape_eea.io.file_tools import (
     is_boot_packet,
     read_raw_hk,
 )
-from gdctb_cape_eea.stepper.StepperTable import (
+from gdctb_cape_eea.stepper.stepper_table import (
     CURRENT_STEPPER_TABLE_FILE,
     StepperTable,
     get_stepper_table_for_file,
