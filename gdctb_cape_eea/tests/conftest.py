@@ -1,6 +1,6 @@
 import pytest
 
-from gdctb_cape_eea.Stepper.StepperTable import CURRENT_STEPPER_TABLE_FILE
+from gdctb_cape_eea.stepper.StepperTable import CURRENT_STEPPER_TABLE_FILE
 
 TEST_PROCESSING = [
     "20261014040843395730000_boot.bin",
@@ -33,4 +33,4 @@ def seed_boot_packet():
     filtering, or isolation. Tests that do process a real boot-packet entry still overwrite it
     with the real value, same as production.
     """
-    CURRENT_STEPPER_TABLE_FILE.write_text("flight_stepper.txt")
+    CURRENT_STEPPER_TABLE_FILE.write_text("flight_stepper.csv")

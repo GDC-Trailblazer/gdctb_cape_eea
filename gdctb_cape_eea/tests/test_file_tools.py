@@ -1,19 +1,32 @@
+import csv
 from pathlib import Path
 
+import numpy as np
 import pytest
+from astropy.table import Table
 
 import gdctb_cape_eea
 from gdctb_cape_eea.io.file_tools import read_file
-from gdctb_cape_eea.Stepper.StepperTable import StepperTable, validate_stepper_table
+from gdctb_cape_eea.stepper.StepperTable import StepperTable, validate_stepper_table
 
 
 def test_read_file():
-    assert read_file("./gdctb_cape_eea/data/calibration/flight_stepper.txt") is not None
+    assert read_file("./gdctb_cape_eea/data/calibration/flight_stepper.csv") is not None
+
+
+def test_read_cpt_stepper_file():
+    lines = read_file(gdctb_cape_eea._calibration_directory / "cpt_stepper.csv")
+
+    assert len(lines) == 165
+    assert lines[0].strip() == "energy,deflection"
+    assert lines[1].strip() == "0.049230224,16.875"
+    assert lines[33].strip() == "34.95603837,16.875"
+    assert lines[-1].strip() == "0.049230224,-16.875"
 
 
 @pytest.fixture(scope="session")  # this is a pytest fixture
 def first_stepper_file(tmp_path_factory):
-    fn = Path("flight_stepper.txt")
+    fn = Path("flight_stepper.csv")
     return fn
 
 
@@ -23,8 +36,34 @@ def test_characterize_stepper(first_stepper_file):
 
 
 @pytest.mark.parametrize(
+    ("filename", "row_count"),
+    [
+        ("cpt_stepper.csv", 164),
+        ("flight_stepper.csv", 164),
+        ("ptb_esastepped_deflected_stepper.csv", 64),
+        ("ptb_esastepped_undeflected_stepper.csv", 64),
+    ],
+)
+def test_parse_stepper_table(filename, row_count):
+    with (gdctb_cape_eea._calibration_directory / filename).open(newline="") as file:
+        rows = list(csv.DictReader(file))
+    expected_energies = [float(row["energy"]) for row in rows]
+    expected_deflections = [float(row["deflection"]) for row in rows]
+
+    stepper = StepperTable(Path(filename))
+
+    assert len(rows) == row_count
+    assert isinstance(stepper.table, Table)
+    assert stepper.table.colnames == ["energy", "deflection"]
+    np.testing.assert_array_equal(stepper.table["energy"], expected_energies)
+    np.testing.assert_array_equal(stepper.table["deflection"], expected_deflections)
+    np.testing.assert_array_equal(stepper.energies, expected_energies)
+    np.testing.assert_array_equal(stepper.deflections, expected_deflections)
+
+
+@pytest.mark.parametrize(
     "stepper_table_file",
-    ["flight_stepper.txt", "ptb_esastepped_undeflected_stepper.txt"],
+    ["flight_stepper.csv", "ptb_esastepped_undeflected_stepper.csv"],
 )
 def test_validate_stepper_table_passes(stepper_table_file):
     stepper = StepperTable(stepper_table_file)
@@ -32,7 +71,7 @@ def test_validate_stepper_table_passes(stepper_table_file):
 
 
 def test_validate_stepper_table_catches_swapped_columns():
-    stepper = StepperTable("flight_stepper.txt")
+    stepper = StepperTable("flight_stepper.csv")
     # Deliberately swap the parsed columns to simulate a mis-parsed/malformed file.
     stepper.energies, stepper.deflections = stepper.deflections, stepper.energies
     issues = validate_stepper_table(stepper)
@@ -41,7 +80,7 @@ def test_validate_stepper_table_catches_swapped_columns():
 
 
 def test_validate_stepper_table_catches_empty_table():
-    stepper = StepperTable("flight_stepper.txt")
+    stepper = StepperTable("flight_stepper.csv")
     stepper.energies = []
     stepper.deflections = []
     issues = validate_stepper_table(stepper)
@@ -55,9 +94,10 @@ def test_stepper_table_raises_on_swapped_columns_file(tmp_path, monkeypatch):
     # Confirm StepperTable() rejects it automatically at construction time,
     # rather than silently loading it.
     defl_like_values = [-16.875, -5.625, 5.625, 16.875]
-    bad_table = tmp_path / "swapped_stepper.txt"
+    bad_table = tmp_path / "swapped_stepper.csv"
     bad_table.write_text(
-        "\n".join(
+        "energy,deflection\n"
+        + "\n".join(
             f"{defl_like_values[i % len(defl_like_values)]}, {100.0 + i}"
             for i in range(50)
         )
@@ -65,4 +105,4 @@ def test_stepper_table_raises_on_swapped_columns_file(tmp_path, monkeypatch):
     monkeypatch.setattr(gdctb_cape_eea, "_calibration_directory", tmp_path)
 
     with pytest.raises(ValueError, match="failed validation"):
-        StepperTable("swapped_stepper.txt")
+        StepperTable("swapped_stepper.csv")

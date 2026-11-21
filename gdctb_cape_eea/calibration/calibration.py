@@ -25,7 +25,7 @@ from gdctb_cape_eea.calibration.build_spectra import GDCTB_cape_EEA_Data_Process
 from gdctb_cape_eea.calibration.skymapfactory import SkymapFactory
 from gdctb_cape_eea.io import read_file
 from gdctb_cape_eea.io.eea import EEA
-from gdctb_cape_eea.Stepper.StepperTable import (
+from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     StepperTable,
     get_stepper_table_for_file,

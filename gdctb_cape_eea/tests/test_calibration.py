@@ -25,7 +25,7 @@ from gdctb_cape_eea.calibration.calibration import (
     is_boot_packet,
 )
 from gdctb_cape_eea.io import read_ccsds
-from gdctb_cape_eea.Stepper.StepperTable import (
+from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     get_stepper_table_for_file,
     get_stepper_table_name_for_btabsel,
@@ -336,15 +336,15 @@ def cleanup_retry(directory):
     [
         (
             "20261014040843395730000_boot.bin",
-            "ptb_esastepped_undeflected_stepper.txt",
+            "ptb_esastepped_undeflected_stepper.csv",
         ),
         (
             "20261014040843395730000_boot_btabsel_1.bin",
-            "flight_stepper.txt",
+            "flight_stepper.csv",
         ),
         (
             "20261014040843395730000_boot_btabsel_2.bin",
-            "ptb_esastepped_deflected_stepper.txt",
+            "ptb_esastepped_deflected_stepper.csv",
         ),
     ],
 )

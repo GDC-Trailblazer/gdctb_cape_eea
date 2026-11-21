@@ -3,6 +3,7 @@ from pathlib import Path
 
 import ccsdspy
 import numpy as np
+from astropy.table import Table
 
 import gdctb_cape_eea
 from gdctb_cape_eea.io import read_file
@@ -12,9 +13,9 @@ from gdctb_cape_eea.io import read_file
 CURRENT_STEPPER_TABLE_FILE = Path("boot_packet.txt")
 # THE BOOT PACKET CAN ONLY REFER TO A PARTICULAR STEPPER TABLE by BTABSEL[0], BTABSEL[1], etc.
 STEPPER_TABLE_FOR_BTABSEL = {
-    0: "ptb_esastepped_undeflected_stepper.txt",
-    1: "flight_stepper.txt",
-    2: "ptb_esastepped_deflected_stepper.txt",
+    0: "ptb_esastepped_undeflected_stepper.csv",
+    1: "flight_stepper.csv",
+    2: "ptb_esastepped_deflected_stepper.csv",
 }
 
 
@@ -87,19 +88,12 @@ class StepperTable:
         """
         Parse the stepper table file and populate the energies and deflections lists.
         """
-        lines = read_file(os.path.join(self.stepper_table_file))
-        energies = []
-        deflections = []
-        for line in lines:
-            if "#" not in line:
-                try:
-                    [energy, deflection] = line.split(",")
-                    energies.append(float(energy))
-                    deflections.append(float(deflection))
-                except ValueError:
-                    continue
-        self.energies = np.array(energies, dtype=float)
-        self.deflections = np.array(deflections, dtype=float)
+        self.table = Table.read(
+            os.path.join(self.stepper_table_file),
+            format="ascii.csv",
+        )
+        self.energies = np.asarray(self.table["energy"], dtype=float)
+        self.deflections = np.asarray(self.table["deflection"], dtype=float)
 
     def parse_old_stepper_table(self):
         """

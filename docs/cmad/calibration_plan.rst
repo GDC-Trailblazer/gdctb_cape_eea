@@ -23,11 +23,11 @@ until the next boot packet. The assignment for each binary boot packet(file) ``B
 +---------+--------------------------------------------+
 | BTABSEL | Stepper table                              |
 +=========+============================================+
-| 0       | ``ptb_esastepped_undeflected_stepper.txt`` |
+| 0       | ``ptb_esastepped_undeflected_stepper.csv`` |
 +---------+--------------------------------------------+
-| 1       | ``flight_stepper.txt``                     |
+| 1       | ``flight_stepper.csv``                     |
 +---------+--------------------------------------------+
-| 2       | ``ptb_esastepped_deflected_stepper.txt``   |
+| 2       | ``ptb_esastepped_deflected_stepper.csv``   |
 +---------+--------------------------------------------+
 
 Any other ``BTABSEL`` value raises a ``ValueError``.
@@ -35,7 +35,7 @@ Any other ``BTABSEL`` value raises a ``ValueError``.
 Processing a boot packet does nothing else except record the selected table name in
 ``boot_packet.txt``, a stub standing in for a database. Science processing reads
 ``boot_packet.txt`` to build the ``StepperTable`` it uses. The code lives in
-:py:mod:`gdctb_cape_eea.Stepper.StepperTable` (``read_btabsel``, ``get_stepper_table_name_for_btabsel``,
+:py:mod:`gdctb_cape_eea.stepper.StepperTable` (``read_btabsel``, ``get_stepper_table_name_for_btabsel``,
 ``store_boot_packet`` and ``get_stepper_table_for_file``). ASCII boot files are not parsed; their file
 name is taken as the stepper table name.
 
