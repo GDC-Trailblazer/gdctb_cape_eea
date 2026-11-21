@@ -6,7 +6,6 @@ import numpy as np
 from astropy.table import Table
 
 import gdctb_cape_eea
-from gdctb_cape_eea.io import read_file
 
 # Stub "database": boot packet BTABSEL value -> stepper table file name
 # THIS IS OUR DATABASE.
@@ -235,23 +234,6 @@ def read_btabsel(file_path) -> int:
     )
     result = pkt.load(file_path)
     return int(result["BTABSEL"][-1])
-
-
-def is_ascii_file(file_path, block_size=1024):
-    """Returns True if the file contains only valid 7-bit ASCII characters."""
-    try:
-        with open(file_path, "rb") as f:
-            block = f.read(block_size)
-
-            # A null byte means it is a binary file, not ASCII text
-            if b"\x00" in block:
-                return False
-
-            # ASCII characters only use byte values from 0 to 127
-            return not any(byte > 127 for byte in block)
-    except OSError:
-        print(f"Error: Could not read file {file_path}")
-        return False
 
 
 def store_boot_packet(file_path):

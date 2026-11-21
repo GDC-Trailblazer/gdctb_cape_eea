@@ -19,19 +19,18 @@ from swxsoc.swxdata import SWXData
 from swxsoc.util.util import parse_science_filename
 
 import gdctb_cape_eea
-import gdctb_cape_eea.calibration as calib
 from gdctb_cape_eea import log
 from gdctb_cape_eea.calibration.build_spectra import GDCTB_cape_EEA_Data_Processor
 from gdctb_cape_eea.calibration.skymapfactory import SkymapFactory
-from gdctb_cape_eea.io import read_file
 from gdctb_cape_eea.io.eea import EEA
 from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     StepperTable,
     get_stepper_table_for_file,
-    is_ascii_file,
     store_boot_packet,
 )
+from gdctb_cape_eea.io.file_tools import get_apid_for_file, is_boot_packet
+
 from gdctb_cape_eea.util.time import ccsds_to_cdf_time
 
 __all__ = [
@@ -42,35 +41,8 @@ __all__ = [
     "parse_hk_packets",
     "parse_l0_sci_packets",
     "process_file",
-    "read_calibration_file",
 ]
 APIDS = {"HK": [265], "SCIENCE": [260], "BOOT": [266]}
-
-
-def _peek_apid(data_filename: Path) -> int:
-    """Read the CCSDS APID out of the first packet's primary header (its first 2
-    bytes), without needing to know which packet definition (sci vs hk) applies yet.
-    """
-    with open(data_filename, "rb") as fh:
-        header = fh.read(2)
-    if len(header) < 2:
-        raise ValueError(
-            f"{data_filename} is too short to contain a CCSDS primary header."
-        )
-    first_word = struct.unpack(">H", header)[0]
-    return first_word & 0x07FF
-
-
-def get_apid_for_file(data_filename) -> int:
-    """Look up the CCSDS APID that applies to a given registered L0 input file."""
-    try:
-        return _peek_apid(data_filename)
-    except OSError as err:
-        raise OSError(f"Could not read input file {data_filename!r}: {err}") from err
-    except ValueError as err:
-        raise ValueError(
-            f"Could not determine APID for input file {data_filename!r}: {err}"
-        ) from err
 
 
 def process_file(data_filename: Path) -> list:
@@ -233,22 +205,10 @@ def parse_l0_sci_packets(data_filename: Path) -> dict:
     pkt = ccsdspy.FixedLength.from_file(
         Path(gdctb_cape_eea._data_directory) / "gdctb_cape-eea_sci_packet_def.csv"
     )
-    data = pkt.load(data_filename, include_primary_header=True)
+    data = pkt.load(data_filename, include_primary_header=False)
 
     unique_apids = sorted(set(data["CCSDS_APID"].tolist()))
     log.info(f"Parsed APID(s): {unique_apids}")
-
-    # drop the primary header fields, callers only expect the science fields
-    for header_field in (
-        "CCSDS_VERSION_NUMBER",
-        "CCSDS_PACKET_TYPE",
-        "CCSDS_SECONDARY_FLAG",
-        "CCSDS_SEQUENCE_FLAG",
-        "CCSDS_APID",
-        "CCSDS_SEQUENCE_COUNT",
-        "CCSDS_PACKET_LENGTH",
-    ):
-        data.pop(header_field, None)
 
     return data
 
@@ -484,32 +444,6 @@ def get_calibration_file(data_filename: Path, time=None) -> Path:
     return Path(gdctb_cape_eea._calibration_directory) / data_filename
 
 
-def read_calibration_file(calib_filename: Path):
-    """
-    Given a calibration, return the calibration structure.
-
-    Parameters
-    ----------
-    DJG says that energies and angles may change
-    calib_filename: `pathlib.Path`
-        Fully specificied filename of the non-calibrated file (data level < 2)
-        0 1
-    Returns
-    -------
-    output_filename: `pathlib.Path`
-        Fully specificied filename of the appropriate calibration file.
-
-    Examples
-    --------
-    """
-    lines = read_file(calib_filename)
-    calib.energies = []
-    calib.deflections = []
-    for line in lines:
-        calib.energies.append(int(line[8:10], 16))
-        calib.deflections.append(int(line[10:12], 16))
-
-
 def is_binary_file(file_path, block_size=1024):
     """Returns True if the file contains binary data, False if it is clean ASCII."""
     try:
@@ -525,11 +459,3 @@ def is_binary_file(file_path, block_size=1024):
     except OSError:
         print(f"Error: Could not read file {file_path}")
         return False
-
-
-def is_boot_packet(file_path):
-    """Returns True if the file is a boot packet (ASCII text), False otherwise."""
-    if is_ascii_file(file_path):
-        return True  # we have both ascii and binary boot packets
-    apid = get_apid_for_file(file_path)
-    return apid == 266
