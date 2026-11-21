@@ -4,7 +4,6 @@ A module for all things calibration.
 
 import csv
 import os.path
-import struct
 import sys
 from pathlib import Path
 
@@ -23,14 +22,13 @@ from gdctb_cape_eea import log
 from gdctb_cape_eea.calibration.build_spectra import GDCTB_cape_EEA_Data_Processor
 from gdctb_cape_eea.calibration.skymapfactory import SkymapFactory
 from gdctb_cape_eea.io.eea import EEA
+from gdctb_cape_eea.io.file_tools import get_apid_for_file, is_boot_packet
 from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     StepperTable,
     get_stepper_table_for_file,
     store_boot_packet,
 )
-from gdctb_cape_eea.io.file_tools import get_apid_for_file, is_boot_packet
-
 from gdctb_cape_eea.util.time import ccsds_to_cdf_time
 
 __all__ = [

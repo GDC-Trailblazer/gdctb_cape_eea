@@ -1,12 +1,13 @@
-from pathlib import Path
 import struct
+from pathlib import Path
+
 from ccsdspy import FixedLength
 
 """
 This module provides a generic file reader.
 """
 
-__all__ = ["read_ccsds", "is_boot_packet", "get_apid_for_file", "is_ascii_file"]
+__all__ = ["get_apid_for_file", "is_ascii_file", "is_boot_packet", "read_ccsds"]
 
 
 def _peek_apid(data_filename: Path) -> int:
