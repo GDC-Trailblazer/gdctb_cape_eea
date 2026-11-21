@@ -12,8 +12,8 @@ Science Objectives
 
 This section describes the science objective(s) of the mission.
 
-<Instrument name> Instrument Description
-========================================
+GDCTB Cape EEA Instrument Description
+============================================================
 
 
 Measurement Concept
@@ -29,7 +29,7 @@ below may be included.
 | Wavelength     | 6 or more emissions to     | 0.1-105 nm                     | 0.1-105 nm   |
 | :math:`\lambda`| specify the chromosphere,  |                                |              |
 |                | TR, and corona, plus the   |                                |              |
-|                | He II 30.4 nm emission     |                                |              |             
+|                | He II 30.4 nm emission     |                                |              |
 +----------------+----------------------------+--------------------------------+--------------+
 | Time Cadence   |                     60 sec |                    < 20 sec    |       10 sec |
 +----------------+----------------------------+--------------------------------+--------------+

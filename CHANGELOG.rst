@@ -1,8 +1,8 @@
-********
-Releases
-********
+This project uses `semantic versioning <https://semver.org>`_.
 
-Notable changes to this project will be documented in this file.
-The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.0.0/>`__.
-
-No releases yet!
+Latest
+======
+* Move hermes_eea code over to `gdctb_cape_eea`
+* Add a Stepper file format validator
+* Add a boot packet to database stub that selects the stepper table from the BTABSEL value
+* Add HK binary file handling

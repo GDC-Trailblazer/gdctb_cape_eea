@@ -1,0 +1,69 @@
+from dataclasses import dataclass, field
+from typing import Any
+
+N_AZIMUTH = 32  # number of real sky-map azimuth bins
+# The raw ACCUM packet field has 34 channels total (see hermes, now gdctb_cape-eea_sci_packet_def.csv).
+# Confirmed against the EEA C&DH firmware (GitLab hermes-eea/eea-cdh, eea.vhd/eea_ctrl.vhd):
+# channels 0-31 are the real sky-map azimuth bins; the last two are TOF-ASIC overflow
+# counters, not azimuth data:
+#   ACCUM bin 32 (0-indexed) -> TOF channel B overflow (PulseB)
+#   ACCUM bin 33 (0-indexed) -> TOF channel A overflow (PulseA)
+PULSE_B_CHANNEL = N_AZIMUTH  # 32
+PULSE_A_CHANNEL = N_AZIMUTH + 1  # 33
+MAX_STEPS = 256
+REAL4FILL = -1e31
+# this large negative number is cdfepoch of 9999-12-31T23:59:59.999999999 which is the fillvalue from...GDCTB_cape/Astropy or something
+EPOCHTIMEFILL = -9223372036854775808
+INTFILL = 65535
+
+
+@dataclass
+class EEA:
+    """
+    holds the data after Skymap creation and before CDF file population
+    """
+
+    # the first of each sweep, the first of each of the 164 times,
+    # when gdctb_cape_eea_intgr_or_stepper = 1 and  gdctb_cape_eea_step_counter = 0
+    Epoch: list = field(default_factory=list)
+    Generation_date: Any = None
+    Logical_file_id: Any = None
+    Data_version: Any = None
+    # ener, defl
+    step_times: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] seconds since each sweep's Epoch
+    PulseA: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] TOF channel A overflow counter (ACCUM bin 33)
+    PulseB: list = field(
+        default_factory=list
+    )  # [n_sweeps, MAX_STEPS] TOF channel B overflow counter (ACCUM bin 32)
+    Counter1: list = field(default_factory=list)
+    Counter2: list = field(default_factory=list)
+    ACCUM: list = field(default_factory=list)  # [41, 4, 32]. [ene, defl, accums]
+    SunAngles: list = field(default_factory=list)  # [4,32] really just metadata
+    EnergyLabels: list = field(default_factory=list)  # [41] really just metadata
+    # stats: list = field(default_factory=list)       # [41] really just metadata
+
+    def append(self, attrname, record):
+        try:
+            return record[attrname]
+        except KeyError:
+            # occasionally no value is returned
+            if self.name_align(attrname) in self.default_obj:
+                return self.default_obj[self.name_align(attrname)]
+
+    def populate(
+        self, sweeps: list[dict[str, Any]]
+    ):  # EEA sweep ~ FPI skymap EEA_sweep time is n_steps * .006 secs
+        for record in sweeps:
+            self.Epoch.append(record["Epoch"])
+            self.step_times.append(self.append("step_times", record))
+            self.ACCUM.append(self.append("counts", record))
+            self.PulseA.append(self.append("pulse_a", record))
+            self.PulseB.append(self.append("pulse_b", record))
+            self.SunAngles.append(self.append("deflections", record))
+            self.EnergyLabels.append(self.append("energies", record))
+            self.Counter1.append(record["counter1"])
+            self.Counter2.append(record["counter2"])

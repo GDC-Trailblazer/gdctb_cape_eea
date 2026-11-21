@@ -4,13 +4,9 @@ Calbiration directory
 This directory contains calibration files included with the package source
 code distribution.
 
-Naming Convention
------------------
-Filenames are structed as followed
+The following files provide deflections as a function of energy.
 
-  cape_eea_<instrument>_calib_<start time>_<end_time>
-
-For example,
-
-  gdctb_cape_eea_calib_20220401_20220501
-
+* cpt_stepper.csv
+* ptb_esastepped_deflected_stepper.csv
+* ptb_esastepped_undeflected_stepper.csv
+* flight_stepper.csv
