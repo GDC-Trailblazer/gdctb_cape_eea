@@ -14,11 +14,6 @@ TEST_PROCESSING = [
 ]
 
 
-# STEPPER_TABLE_FOR_FILE, get_stepper_table_for_file, and get_apid_for_file now live in
-# gdctb_cape_eea.calibration.calibration (the production module) and are re-exported here so
-# process_file() and the tests share a single registry instead of drifting out of sync.
-
-
 @pytest.fixture(autouse=True, scope="session")
 def seed_boot_packet():
     """Seed CURRENT_STEPPER_TABLE_FILE ("boot_packet.txt") with a known-good default stepper

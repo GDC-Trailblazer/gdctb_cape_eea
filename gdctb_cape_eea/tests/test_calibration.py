@@ -19,12 +19,8 @@ from gdctb_cape_eea import (
     _test_files_directory,
     log,
 )
-from gdctb_cape_eea.calibration.calibration import (
-    APIDS,
-    get_apid_for_file,
-    is_boot_packet,
-)
-from gdctb_cape_eea.io import read_ccsds
+from gdctb_cape_eea.calibration.calibration import APIDS
+from gdctb_cape_eea.io import get_apid_for_file, is_boot_packet, read_ccsds
 from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     get_stepper_table_for_file,
@@ -91,13 +87,6 @@ def small_level0_file(request):
 def test_read_ccsdspy(small_level0_file):
     """
     Homage to Liam and the difficulties encountered at the outset...
-    Parameters
-    ----------
-    small_level0_file - ccsds format packet file
-
-    Returns
-    -------
-
     """
     if is_boot_packet(small_level0_file):
         pytest.skip("ASCII files are not supported in this test")

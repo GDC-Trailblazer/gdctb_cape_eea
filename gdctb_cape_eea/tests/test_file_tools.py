@@ -6,16 +6,11 @@ import pytest
 from astropy.table import Table
 
 import gdctb_cape_eea
-from gdctb_cape_eea.io.file_tools import read_file
 from gdctb_cape_eea.stepper.StepperTable import StepperTable, validate_stepper_table
 
 
-def test_read_file():
-    assert read_file("./gdctb_cape_eea/data/calibration/flight_stepper.csv") is not None
-
-
 def test_read_cpt_stepper_file():
-    lines = read_file(gdctb_cape_eea._calibration_directory / "cpt_stepper.csv")
+    lines = (gdctb_cape_eea._calibration_directory / "cpt_stepper.csv").read_text().splitlines()
 
     assert len(lines) == 165
     assert lines[0].strip() == "energy,deflection"

@@ -94,7 +94,7 @@ def process_file(data_filename: Path) -> list:
 
     # Determine the APID (and, for science data, the StepperTable) from the file itself.
     if not is_boot_packet(data_filename):
-        apid = _peek_apid(data_filename)
+        apid = get_apid_for_file(data_filename)
         stepper = (
             get_stepper_table_for_file(CURRENT_STEPPER_TABLE_FILE)
             if apid in APIDS["SCIENCE"]
@@ -205,10 +205,22 @@ def parse_l0_sci_packets(data_filename: Path) -> dict:
     pkt = ccsdspy.FixedLength.from_file(
         Path(gdctb_cape_eea._data_directory) / "gdctb_cape-eea_sci_packet_def.csv"
     )
-    data = pkt.load(data_filename, include_primary_header=False)
+    data = pkt.load(data_filename, include_primary_header=True)
 
     unique_apids = sorted(set(data["CCSDS_APID"].tolist()))
     log.info(f"Parsed APID(s): {unique_apids}")
+
+    # drop the primary header fields, callers only expect the hk fields
+    for header_field in (
+        "CCSDS_VERSION_NUMBER",
+        "CCSDS_PACKET_TYPE",
+        "CCSDS_SECONDARY_FLAG",
+        "CCSDS_SEQUENCE_FLAG",
+        "CCSDS_APID",
+        "CCSDS_SEQUENCE_COUNT",
+        "CCSDS_PACKET_LENGTH",
+    ):
+        data.pop(header_field, None)
 
     return data
 

@@ -6,10 +6,12 @@ import numpy as np
 from astropy.table import Table
 
 import gdctb_cape_eea
+from gdctb_cape_eea import _data_directory
+from gdctb_cape_eea.io.file_tools import is_ascii_file
 
 # Stub "database": boot packet BTABSEL value -> stepper table file name
 # THIS IS OUR DATABASE.
-CURRENT_STEPPER_TABLE_FILE = Path("boot_packet.txt")
+CURRENT_STEPPER_TABLE_FILE = _data_directory / "boot_packet.txt"
 # THE BOOT PACKET CAN ONLY REFER TO A PARTICULAR STEPPER TABLE by BTABSEL[0], BTABSEL[1], etc.
 STEPPER_TABLE_FOR_BTABSEL = {
     0: "ptb_esastepped_undeflected_stepper.csv",

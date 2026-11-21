@@ -2,8 +2,6 @@ from pathlib import Path
 import struct
 from ccsdspy import FixedLength
 
-from gdctb_cape_eea.calibration.calibration import get_apid_for_file
-
 """
 This module provides a generic file reader.
 """
