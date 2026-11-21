@@ -178,6 +178,51 @@ def test_process_file_debug_cdf(tmp_path, monkeypatch, keep_debug_cdf):
         assert debug_copy.read_bytes() == b"cdf"
 
 
+def test_process_hk_matches_dictionary_cdf(tmp_path):
+    source = _test_files_directory / "gdctb_cape-eea_265_2026161-132237_v0.bin"
+    legacy_dir = tmp_path / "legacy"
+    processed_dir = tmp_path / "processed"
+    legacy_dir.mkdir()
+    processed_dir.mkdir()
+    copied_source = processed_dir / source.name
+    shutil.copy(source, copied_source)
+
+    legacy = calib.l0_hk_data_to_cdf(
+        calib.parse_hk_packets(source), source, legacy_dir
+    )
+    [processed] = calib.process_file(copied_source)
+
+    with pycdf.CDF(str(legacy)) as old, pycdf.CDF(str(processed)) as new:
+        assert set(old) == set(new)
+        assert set(old.attrs) == set(new.attrs)
+        for name in old.attrs:
+            if name != "Generation_date":
+                assert len(old.attrs[name]) == len(new.attrs[name])
+                for index in range(len(old.attrs[name])):
+                    np.testing.assert_equal(old.attrs[name][index], new.attrs[name][index])
+        for name in old:
+            assert old[name].type() == new[name].type()
+            np.testing.assert_array_equal(old[name][:], new[name][:])
+            assert set(old[name].attrs) == set(new[name].attrs)
+            for attr in old[name].attrs:
+                np.testing.assert_equal(old[name].attrs[attr], new[name].attrs[attr])
+
+
+def test_process_hk_rejects_mixed_apids(tmp_path):
+    hk_name = "gdctb_cape-eea_265_2026161-132237_v0.bin"
+    hk = next(ccsdspy.utils.iter_packet_bytes(str(_test_files_directory / hk_name)))
+    boot = next(
+        ccsdspy.utils.iter_packet_bytes(
+            str(_test_files_directory / "20261014040843395730000_boot.bin")
+        )
+    )
+    source = tmp_path / hk_name
+    source.write_bytes(hk + boot)
+
+    with pytest.raises(ValueError, match="Expected only housekeeping APID 265"):
+        calib.process_file(source)
+
+
 def verify_l1a(data_filename, output_l1a):
 
     from gdctb_cape_eea.io.eea import EPOCHTIMEFILL, INTFILL, REAL4FILL

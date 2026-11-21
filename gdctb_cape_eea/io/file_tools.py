@@ -1,13 +1,26 @@
+import csv
 import struct
 from pathlib import Path
 
+from astropy.time import Time
+from astropy.timeseries import TimeSeries
 from ccsdspy import FixedLength
+from ccsdspy.utils import read_primary_headers
+
+import gdctb_cape_eea
+from gdctb_cape_eea.util.time import ccsds_to_cdf_time
 
 """
 This module provides a generic file reader.
 """
 
-__all__ = ["get_apid_for_file", "is_ascii_file", "is_boot_packet", "read_ccsds"]
+__all__ = [
+    "get_apid_for_file",
+    "is_ascii_file",
+    "is_boot_packet",
+    "read_ccsds",
+    "read_raw_hk",
+]
 
 
 def _peek_apid(data_filename: Path) -> int:
@@ -79,3 +92,50 @@ def read_ccsds(filename: Path, pkt_def: FixedLength):
     """
     result = pkt_def.load(filename)
     return result
+
+
+def _read_hk_fill_field_names() -> set[str]:
+    """Find fill fields, whose decoded sub-byte values may include neighboring bits."""
+    csv_path = gdctb_cape_eea._data_directory / "gdctb_cape-eea_hk_packet_def.csv"
+    with csv_path.open(newline="") as fp:
+        reader = csv.DictReader(fp, skipinitialspace=True)
+        return {
+            row["name"].strip()
+            for row in reader
+            if row["data_type"].strip().lower() == "fill"
+        }
+
+
+def read_raw_hk(filename: str | Path) -> TimeSeries:
+    """Read an APID 265 housekeeping file into an Astropy time series.
+
+    The time column uses the same CCSDS-to-UTC conversion as the L1 CDF
+    pipeline. Other columns contain raw, uncalibrated packet fields, including
+    CCSDS primary headers; fill fields are omitted.
+
+    Raises
+    ------
+    ValueError
+        If the file contains no packets or packets with other APIDs.
+    """
+    from spacepy.pycdf import lib
+
+    filename = Path(filename)
+    if filename.stat().st_size == 0:
+        raise ValueError(f"Expected housekeeping packets in {filename}; file is empty")
+    headers = read_primary_headers(str(filename))
+    apids = set(headers["CCSDS_APID"].tolist())
+    if apids != {265}:
+        raise ValueError(
+            f"Expected only housekeeping APID 265 in {filename}; found {sorted(apids)}"
+        )
+
+    definition = gdctb_cape_eea._data_directory / "gdctb_cape-eea_hk_packet_def.csv"
+    packets = FixedLength.from_file(definition).load(
+        filename, include_primary_header=True
+    )
+    epochs = ccsds_to_cdf_time.convert_ccsds_times_to_cdf(packets)
+    times = Time([lib.tt2000_to_datetime(epoch) for epoch in epochs])
+    fill_fields = _read_hk_fill_field_names()
+    columns = {name: values for name, values in packets.items() if name not in fill_fields}
+    return TimeSeries(time=times, data=columns)

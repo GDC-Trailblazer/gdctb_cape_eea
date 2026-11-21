@@ -4,9 +4,58 @@ from pathlib import Path
 import numpy as np
 import pytest
 from astropy.table import Table
+from astropy.timeseries import TimeSeries
+from ccsdspy.utils import iter_packet_bytes
 
 import gdctb_cape_eea
+from gdctb_cape_eea.io import read_raw_hk
 from gdctb_cape_eea.stepper.StepperTable import StepperTable, validate_stepper_table
+
+
+def test_read_raw_hk():
+    filename = (
+        gdctb_cape_eea._test_files_directory
+        / "gdctb_cape-eea_265_2026161-132237_v0.bin"
+    )
+    result = read_raw_hk(filename)
+
+    assert isinstance(result, TimeSeries)
+    assert len(result) == 2405
+    assert result.time[0].isot == "2000-01-01T12:01:20.000"
+    assert result.time[0].datetime.microsecond == 124
+    assert result["CCSDS_APID"][0] == 265
+    assert result["SHCOARSE"][0] == 80
+    assert result["SHFINE"][0] == 124
+    assert result["T_FEE"][0] == 3515
+    assert result["V_5_7V"][0] == 6641
+    assert result["ANODE_V"][0] == 32771
+    assert "SHFILL" not in result.colnames
+    assert "FILL" not in result.colnames
+
+
+@pytest.mark.parametrize("include_hk", [False, True])
+def test_read_raw_hk_rejects_non_hk_packets(tmp_path, include_hk):
+    test_dir = gdctb_cape_eea._test_files_directory
+    boot = next(iter_packet_bytes(str(test_dir / "20261014040843395730000_boot.bin")))
+    content = boot
+    if include_hk:
+        hk = next(
+            iter_packet_bytes(str(test_dir / "gdctb_cape-eea_265_2026161-132237_v0.bin"))
+        )
+        content = hk + boot
+    filename = tmp_path / "packets.bin"
+    filename.write_bytes(content)
+
+    with pytest.raises(ValueError, match="Expected only housekeeping APID 265"):
+        read_raw_hk(filename)
+
+
+def test_read_raw_hk_rejects_empty_file(tmp_path):
+    filename = tmp_path / "empty.bin"
+    filename.touch()
+
+    with pytest.raises(ValueError, match="file is empty"):
+        read_raw_hk(filename)
 
 
 def test_read_cpt_stepper_file():

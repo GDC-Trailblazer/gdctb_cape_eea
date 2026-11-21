@@ -22,7 +22,12 @@ from gdctb_cape_eea import log
 from gdctb_cape_eea.calibration.build_spectra import GDCTB_cape_EEA_Data_Processor
 from gdctb_cape_eea.calibration.skymapfactory import SkymapFactory
 from gdctb_cape_eea.io.eea import EEA
-from gdctb_cape_eea.io.file_tools import get_apid_for_file, is_boot_packet
+from gdctb_cape_eea.io.file_tools import (
+    _read_hk_fill_field_names,
+    get_apid_for_file,
+    is_boot_packet,
+    read_raw_hk,
+)
 from gdctb_cape_eea.stepper.StepperTable import (
     CURRENT_STEPPER_TABLE_FILE,
     StepperTable,
@@ -170,7 +175,7 @@ def calibrate_file(
 
     elif apid in APIDS["HK"]:
         log.info(f"Processing HK file: {data_filename}.")
-        data = parse_hk_packets(data_filename)
+        data = read_raw_hk(data_filename)
         output_filename = l0_hk_data_to_cdf(data, data_filename, destination_dir)
     else:
         raise ValueError(f"The file {data_filename} is not recognized.")
@@ -281,36 +286,17 @@ def _read_hk_field_catdesc() -> dict:
         return {row["name"].strip(): row["description"].strip() for row in reader}
 
 
-def _read_hk_fill_field_names() -> set:
-    """Names of HK fields declared as data_type "fill" in gdctb_cape-eea_hk_packet_def.csv.
-
-    ccsdspy only bitmasks "uint"/"int" fields, not "fill", so sub-byte fill fields come
-    back containing raw, unmasked bits from whatever neighboring field shares that byte.
-    Their decoded values are meaningless and shouldn't be written out as measurements.
-    """
-    csv_path = os.path.join(
-        gdctb_cape_eea._data_directory, "gdctb_cape-eea_hk_packet_def.csv"
-    )
-    with open(csv_path, "r") as fp:
-        reader = csv.DictReader(fp, skipinitialspace=True)
-        return {
-            row["name"].strip()
-            for row in reader
-            if row["data_type"].strip().lower() == "fill"
-        }
-
-
 def l0_hk_data_to_cdf(
-    data: dict, original_filename: Path, destination_dir: Path
+    data: dict | TimeSeries, original_filename: Path, destination_dir: Path
 ) -> Path:
     """
     Write level 0 eea housekeeping data to a level 1 cdf file.
 
     Parameters
     ----------
-    data: dict
-        A dictionary of arrays which includes the housekeeping fields
-        (as returned by parse_hk_packets), including SHCOARSE/SHFINE.
+    data: dict or `astropy.timeseries.TimeSeries`
+        Raw housekeeping fields from ``parse_hk_packets`` or ``read_raw_hk``.
+        Dictionary inputs must include SHCOARSE and SHFINE.
     original_filename: Path
         The Path to the originating file.
     destination_dir: Path
@@ -322,9 +308,18 @@ def l0_hk_data_to_cdf(
         Fully specificied filename of cdf file
     """
 
-    epoch = ccsds_to_cdf_time.convert_ccsds_times_to_cdf(data)
-    iso_datetimes = Time([lib.tt2000_to_datetime(e) for e in epoch])
-    hk_timeseries = TimeSeries(time=iso_datetimes)
+    if isinstance(data, TimeSeries):
+        hk_timeseries = TimeSeries(time=data.time)
+        fields = (
+            (name, column)
+            for name, column in data.columns.items()
+            if name != "time" and not name.startswith("CCSDS_")
+        )
+    else:
+        epoch = ccsds_to_cdf_time.convert_ccsds_times_to_cdf(data)
+        iso_datetimes = Time([lib.tt2000_to_datetime(e) for e in epoch])
+        hk_timeseries = TimeSeries(time=iso_datetimes)
+        fields = data.items()
 
     bare_attrs = SWXData.global_attribute_template(
         gdctb_cape_eea.INST_NAME, "l1", "1.0.0"
@@ -343,7 +338,7 @@ def l0_hk_data_to_cdf(
     # I did go to the trouble to convert thier raw values to real voltages and currents to
     # verify that I was parsing everything correctly but was asked to back that code out (I still have that branch)
     # THIS IS THE DATA WE WANT IN THE DATABASE (barring the units conversion above)
-    for field, values in data.items():
+    for field, values in fields:
         if field in ("SHCOARSE", "SHFINE") or field in hk_fill_fields:
             continue
         try:
