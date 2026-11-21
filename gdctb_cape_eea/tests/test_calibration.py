@@ -142,7 +142,9 @@ def test_process_file(small_level0_file, debug_cdf_dir):
                     try:
                         shutil.copy(output_files[0], debug_cdf_dir)
                     except OSError as e:
-                        raise RuntimeError(f"Could not copy debug CDF to {debug_cdf_dir}") from e
+                        raise RuntimeError(
+                            f"Could not copy debug CDF to {debug_cdf_dir}"
+                        ) from e
 
     # Ensure the temporary directory is cleaned up even if an exception is raised (needed for Windows)
     except PermissionError:
@@ -166,8 +168,12 @@ def test_process_file_debug_cdf(tmp_path, monkeypatch, keep_debug_cdf):
         return [output]
 
     monkeypatch.setattr(calib, "process_file", process_file)
-    monkeypatch.setattr("gdctb_cape_eea.tests.test_calibration.is_boot_packet", lambda _: False)
-    monkeypatch.setattr("gdctb_cape_eea.tests.test_calibration.verify_l1a", lambda *_: None)
+    monkeypatch.setattr(
+        "gdctb_cape_eea.tests.test_calibration.is_boot_packet", lambda _: False
+    )
+    monkeypatch.setattr(
+        "gdctb_cape_eea.tests.test_calibration.verify_l1a", lambda *_: None
+    )
 
     test_process_file(source, debug_dir if keep_debug_cdf else None)
 
@@ -187,9 +193,7 @@ def test_process_hk_matches_dictionary_cdf(tmp_path):
     copied_source = processed_dir / source.name
     shutil.copy(source, copied_source)
 
-    legacy = calib.l0_hk_data_to_cdf(
-        calib.parse_hk_packets(source), source, legacy_dir
-    )
+    legacy = calib.l0_hk_data_to_cdf(calib.parse_hk_packets(source), source, legacy_dir)
     [processed] = calib.process_file(copied_source)
 
     with pycdf.CDF(str(legacy)) as old, pycdf.CDF(str(processed)) as new:
@@ -199,7 +203,9 @@ def test_process_hk_matches_dictionary_cdf(tmp_path):
             if name != "Generation_date":
                 assert len(old.attrs[name]) == len(new.attrs[name])
                 for index in range(len(old.attrs[name])):
-                    np.testing.assert_equal(old.attrs[name][index], new.attrs[name][index])
+                    np.testing.assert_equal(
+                        old.attrs[name][index], new.attrs[name][index]
+                    )
         for name in old:
             assert old[name].type() == new[name].type()
             np.testing.assert_array_equal(old[name][:], new[name][:])
@@ -295,6 +301,7 @@ def verify_l1a(data_filename, output_l1a):
                     f"first few (sweep, skymap, counter): {failed_sweeps[:5]}",
                     stacklevel=2,
                 )
+
 
 # Raw HK analog/thermistor monitors are all 16-bit unsigned counts (see
 # gdctb_cape-eea_hk_packet_def.csv), so this is the largest raw value any of them can report.

@@ -137,5 +137,7 @@ def read_raw_hk(filename: str | Path) -> TimeSeries:
     epochs = ccsds_to_cdf_time.convert_ccsds_times_to_cdf(packets)
     times = Time([lib.tt2000_to_datetime(epoch) for epoch in epochs])
     fill_fields = _read_hk_fill_field_names()
-    columns = {name: values for name, values in packets.items() if name not in fill_fields}
+    columns = {
+        name: values for name, values in packets.items() if name not in fill_fields
+    }
     return TimeSeries(time=times, data=columns)

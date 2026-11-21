@@ -31,7 +31,9 @@ def debug_cdf_dir(request):
         return None
     directory = Path(directory)
     if not directory.is_dir():
-        raise pytest.UsageError(f"--debug-cdf requires an existing directory: {directory}")
+        raise pytest.UsageError(
+            f"--debug-cdf requires an existing directory: {directory}"
+        )
     return directory
 
 

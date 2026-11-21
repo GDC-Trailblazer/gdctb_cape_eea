@@ -40,7 +40,9 @@ def test_read_raw_hk_rejects_non_hk_packets(tmp_path, include_hk):
     content = boot
     if include_hk:
         hk = next(
-            iter_packet_bytes(str(test_dir / "gdctb_cape-eea_265_2026161-132237_v0.bin"))
+            iter_packet_bytes(
+                str(test_dir / "gdctb_cape-eea_265_2026161-132237_v0.bin")
+            )
         )
         content = hk + boot
     filename = tmp_path / "packets.bin"
@@ -59,7 +61,11 @@ def test_read_raw_hk_rejects_empty_file(tmp_path):
 
 
 def test_read_cpt_stepper_file():
-    lines = (gdctb_cape_eea._calibration_directory / "cpt_stepper.csv").read_text().splitlines()
+    lines = (
+        (gdctb_cape_eea._calibration_directory / "cpt_stepper.csv")
+        .read_text()
+        .splitlines()
+    )
 
     assert len(lines) == 165
     assert lines[0].strip() == "energy,deflection"
