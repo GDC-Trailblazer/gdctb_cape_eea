@@ -114,7 +114,8 @@ class StepperTable:
         --------
         """
 
-        lines = read_file(os.path.join(self.stepper_table_file))
+        with open(os.path.join(self.stepper_table_file)) as fh:
+            lines = fh.readlines()
         self.energies = np.array([int(line[8:10], 16) for line in lines])
         self.deflections = np.array([int(line[10:12], 16) for line in lines])
 
