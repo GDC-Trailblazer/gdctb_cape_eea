@@ -15,7 +15,6 @@ import gdctb_cape_eea
 import gdctb_cape_eea.calibration as calib
 from gdctb_cape_eea import (
     _calibration_directory,
-    _data_directory,
     _test_files_directory,
     log,
 )
@@ -122,7 +121,7 @@ def test_read_ccsdspy(small_level0_file):
         assert len(result["ACCUM"][0]) == 34
 
 
-def test_process_file(small_level0_file):
+def test_process_file(small_level0_file, debug_cdf_dir):
     """Test the boilerplate of the file processing function
        Tests a creation of a nominal L1A EEA file from packets
     calls:
@@ -139,12 +138,44 @@ def test_process_file(small_level0_file):
             output_files = calib.process_file(temp_test_file_path)
             if not is_boot_packet(temp_test_file_path):
                 verify_l1a(small_level0_file, output_files[0])
+                if debug_cdf_dir is not None:
+                    try:
+                        shutil.copy(output_files[0], debug_cdf_dir)
+                    except OSError as e:
+                        raise RuntimeError(f"Could not copy debug CDF to {debug_cdf_dir}") from e
 
     # Ensure the temporary directory is cleaned up even if an exception is raised (needed for Windows)
     except PermissionError:
         print("Encountered a PermissionError, retrying file deletion...")
         time.sleep(0.5)  # Wait a bit for the OS to release any locks
         cleanup_retry(tmpdirname)
+
+
+@pytest.mark.parametrize("keep_debug_cdf", [False, True])
+def test_process_file_debug_cdf(tmp_path, monkeypatch, keep_debug_cdf):
+    source = tmp_path / "input.bin"
+    source.write_bytes(b"input")
+    debug_dir = tmp_path / "debug"
+    debug_dir.mkdir()
+    generated = []
+
+    def process_file(input_file):
+        output = input_file.parent / "output.cdf"
+        output.write_bytes(b"cdf")
+        generated.append(output)
+        return [output]
+
+    monkeypatch.setattr(calib, "process_file", process_file)
+    monkeypatch.setattr("gdctb_cape_eea.tests.test_calibration.is_boot_packet", lambda _: False)
+    monkeypatch.setattr("gdctb_cape_eea.tests.test_calibration.verify_l1a", lambda *_: None)
+
+    test_process_file(source, debug_dir if keep_debug_cdf else None)
+
+    assert not generated[0].exists()
+    debug_copy = debug_dir / "output.cdf"
+    assert debug_copy.exists() == keep_debug_cdf
+    if keep_debug_cdf:
+        assert debug_copy.read_bytes() == b"cdf"
 
 
 def verify_l1a(data_filename, output_l1a):
@@ -219,13 +250,6 @@ def verify_l1a(data_filename, output_l1a):
                     f"first few (sweep, skymap, counter): {failed_sweeps[:5]}",
                     stacklevel=2,
                 )
-
-    # best-effort local copy for manual inspection; _data_directory resolves regardless of cwd
-    try:
-        shutil.copy(output_l1a, _data_directory)
-    except OSError as e:
-        log.info(f"Could not save a local debug copy of {output_l1a}: {e}")
-
 
 # Raw HK analog/thermistor monitors are all 16-bit unsigned counts (see
 # gdctb_cape-eea_hk_packet_def.csv), so this is the largest raw value any of them can report.

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from gdctb_cape_eea.stepper.StepperTable import CURRENT_STEPPER_TABLE_FILE
@@ -12,6 +14,25 @@ TEST_PROCESSING = [
     "gdctb_cape-eea_265_2026161-132237_v0.bin",
     "gdctb_cape-eea_265_2026023-000000_v0.bin",
 ]
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--debug-cdf",
+        metavar="DIR",
+        help="Copy generated test CDF files to this existing directory.",
+    )
+
+
+@pytest.fixture
+def debug_cdf_dir(request):
+    directory = request.config.getoption("--debug-cdf")
+    if directory is None:
+        return None
+    directory = Path(directory)
+    if not directory.is_dir():
+        raise pytest.UsageError(f"--debug-cdf requires an existing directory: {directory}")
+    return directory
 
 
 @pytest.fixture(autouse=True, scope="session")

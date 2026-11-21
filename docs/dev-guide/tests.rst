@@ -11,6 +11,19 @@ The testing framework used by sunpy is the `pytest`_ framework, accessed through
 
 .. _pytest: https://pytest.org/en/latest/
 
+Keeping test CDF files
+======================
+
+The processing tests generate CDF files in temporary directories, which are
+removed after each test. To keep successfully verified CDF files for inspection,
+pass an existing output directory using ``--debug-cdf``::
+
+    pytest gdctb_cape_eea/tests/test_calibration.py --debug-cdf /path/to/output
+
+Without this option, no CDF debug copies are saved. Files with the same name in
+the output directory will be overwritten. Previously saved copies are not
+removed by subsequent test runs.
+
 .. note::
 
     The ``pytest`` project was formerly called ``py.test``, and you may
